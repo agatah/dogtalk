@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title></title>
+</head>
+<body>
+
+<div th:fragment="tab-links" class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist"
+     aria-orientation="vertical">
+
+
+    <!--                TAB NAMES-->
+    <a class="nav-link" th:href="@{/user/info}">User info</a>
+    <a class="nav-link" th:href="@{/user/password}">Change password</a>
+
+    <a class="nav-link" sec:authorize="hasRole('ROLE_BEHAVIORIST')" th:href="@{/user/behaviorist}">Behaviorist profile</a>
+    <a class="nav-link" sec:authorize="hasRole('ROLE_BEHAVIORIST')" th:href="@{/user/school}">Manage your schools</a>
+
+    <a class="nav-link" sec:authorize="hasRole('ROLE_PET_OWNER')"  th:href="@{/user/owner}">Pet owner profile</a>
+
+</div>
+</body>
+</html>

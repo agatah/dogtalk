@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/layout::layout(~{::title}, ~{::content})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>DogTalk - portal for dog owners and behaviorists</title>
+</head>
+<body>
+
+<div th:fragment="content" class="container browse">
+  <div class="d-flex flex-column">
+
+    <div th:if="${school.getBannerId() == null}" class="d-flex align-items-end justify-content-center shadow banner">
+      <h1 class="school-name" th:text="${school.name}"></h1>
+    </div>
+    <div th:if="${school.getBannerId() != null}" class="d-flex align-items-end justify-content-center shadow banner"
+         th:with="bannerUrl = '/image/' + ${school.getBannerId()}"
+         th:style="'background-image: url(' + ${bannerUrl} +'), linear-gradient(0deg, rgba(255,255,255,0.40) 0%, rgba(0,0,0,0) 70%);'">
+      <h1 class="school-name" th:text="${school.name}"></h1>
+    </div>
+    <div class="d-flex flex-row">
+      <p class="school-city px-2" th:each="contact: ${school.getContacts()}" th:text="${contact.contactType + contact.value}"></p>
+      <p class="school-city px-2" th:each="location: ${school.locations}" th:text="${location.city}"></p>
+    </div>
+
+    <h4 class="pt-4 pb-2">Behaviorists working here:</h4>
+
+    <div class="container-fluid">
+      <div class="list-group">
+        <a class="list-group-item list-group-item-action" th:each="behaviorist: ${school.behaviorists}"
+           th:text="${behaviorist.getFullName()}" th:href="@{/behaviorist/{id}(id=${behaviorist.id})}">
+        </a>
+      </div>
+    </div>
+
+    <h4 class="pt-4 pb-2">School's services:</h4>
+
+    <div th:each="serviceOffer: ${school.services}">
+      <div class="d-flex flex-row justify-content-evenly serviceOffer-header">
+        <div class="container-fluid flex-column">
+          <h5 th:text="${serviceOffer.getServiceName}"></h5>
+        </div>
+        <div class="container-fluid text-end">
+          <em th:text="${serviceOffer.price}"></em>
+        </div>
+
+      </div>
+      <div class="container-fluid">
+        <p class="text-justify" th:text="${serviceOffer.description}"></p>
+      </div>
+
+
+    </div>
+
+
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DogTalk</title>
+</head>
+<body>
+
+<nav th:fragment="navbar" class="navbar navbar-expand-sm navbar-light fixed-top">
+  <div class="container-fluid">
+    <a class="navbar-brand fs-1 fw-bold" th:href="@{/}">DogTalk</a>
+    <form class="d-flex" sec:authorize="isAnonymous()">
+      <a class="btn btn-outline-primary mx-2" th:href="@{/login}">Login</a>
+      <a class="btn btn-secondary navbar-right-margin" th:href="@{/register}">Register</a>
+    </form>
+    <div class="d-flex" sec:authorize="isAuthenticated()">
+      <div class="dropdown">
+        <a class="nav-link" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+          <img class="settings-dropdown mx-2" th:src="@{/images/user-list.svg}" alt="profile picture"  height="40px">
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+          <li sec:authorize="hasRole('ROLE_BEHAVIORIST')">
+            <a class="dropdown-item"  th:href="@{/user/behaviorist}">Behaviorist profile</a>
+          </li>
+          <li sec:authorize="hasRole('ROLE_BEHAVIORIST')">
+            <a class="dropdown-item" th:href="@{/user/school}">Manage your schools</a>
+          </li>
+          <li sec:authorize="hasRole('ROLE_PET_OWNER')">
+            <a class="dropdown-item" th:href="@{/user/owner}">Pet owner profile</a>
+          </li>
+
+          <li><hr class="dropdown-divider"></li>
+
+          <li><a class="dropdown-item" th:href="@{/user/info}">User info</a></li>
+          <li><a class="dropdown-item" th:href="@{/user/password}">Change password</a></li>
+
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <form method="POST" th:action="@{/logout}">
+            <button class="dropdown-item" type="submit">Logout</button>
+          </form>
+          </li>
+        </ul>
+
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/layout::layout(~{::title}, ~{::content})}">
+<head>
+
+  <title>DogTalk - portal for dog owners and behaviorists</title>
+
+</head>
+<body>
+
+<div th:fragment="content" class="container text-center my-3">
+  <h2>Find behaviorist's school in your city:</h2>
+  <form method="post" th:action="@{/search}" th:object="${location}" class="my-3">
+    <input type="text" name="city" id="city">
+    <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+    <input class="btn btn-secondary" type="submit" value="Search">
+  </form>
+
+
+<!--  Custom scripts-->
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+  <script type="text/javascript">
+    $(function () {
+      $("#city").autocomplete({
+        source: "/api/locations",
+        minLength: 1,
+
+      });
+    });
+
+  </script>
+</div>
+
+</body>
+</html>

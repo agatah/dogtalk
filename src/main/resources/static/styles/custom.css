@@ -1,0 +1,208 @@
+@import url('https://fonts.googleapis.com/css2?family=Pattaya&display=swap');
+
+body {
+    padding-left: calc(100vw - 100%);
+}
+
+main .container {
+    padding-top: 60px;
+    padding-bottom: 20px;
+}
+
+.navbar-brand {
+    font-family: 'Pattaya', sans-serif;
+    color: var(--my-primary);
+
+}
+
+.container {
+    width: 65%;
+}
+
+.navbar {
+    height: 60px;
+    background-color: var(--my-light);
+    width: 100vw;
+}
+
+a {
+    color: var(--my-secondary);
+}
+
+em {
+    font-family: 'Pattaya', sans-serif;
+    color: var(--my-primary);
+    font-weight: bold;
+    font-style: normal;
+}
+
+.btn-outline-primary {
+    color: var(--my-secondary);
+    border-color: var(--my-secondary);
+}
+
+.btn-outline-primary:hover {
+    color: white;
+    border-color: var(--my-secondary);
+    background-color: var(--my-secondary);
+}
+
+.btn-outline-primary:disabled {
+    color: dimgray;
+    border-color: dimgray;
+    border-style: dotted;
+}
+
+.btn-secondary {
+    background-color: var(--my-secondary);
+    color: var(--bs-white);
+    border-color: var(--my-secondary);
+}
+
+.btn-secondary:hover {
+    background-color: var(--my-primary);
+    border-color: var(--my-secondary);
+}
+
+:root {
+    --my-primary: #14213D;
+    --my-secondary: rgb(78, 54, 113);
+    --my-light: #E5E5E5;
+    --my-accent: papayawhip;
+}
+
+h4 {
+    white-space: nowrap;
+}
+
+.form-login {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+}
+
+.schools-list {
+    width: 600px;
+}
+
+.school-city {
+    text-transform: uppercase;
+    font-size: smaller;
+    color: gray;
+    padding-right: 10px;
+}
+
+.service-header {
+    background-color: var(--my-accent);
+}
+
+.settings-header {
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-bottom: 5px;
+    background-color: var(--my-light);
+}
+
+p {
+    font-weight: lighter;
+    font-size: 18px;
+}
+
+.text-justify {
+    text-align: justify;
+    font-weight: lighter;
+    font-size: 18px;
+    text-justify: auto;
+    white-space: pre-line;
+}
+
+.nav-pills .nav-link{
+    text-align: left;
+}
+
+.nav-pills .nav-link.active, .nav-pills .nav-link.active:hover,.nav-pills .nav-link.active:focus{
+    background-color: white;
+    color: var(--my-secondary);
+}
+
+.nav-pills .nav-link, .nav-pills .nav-link:hover,.nav-pills .nav-link:focus{
+    background-color: white;
+    color: var(--my-primary);
+}
+
+.me-6 {
+    margin-right: 80px;
+}
+
+.dashed {
+    border: 1px dashed #14213D;
+}
+
+.solid {
+    border: 1px solid #14213D;
+}
+
+.nav-pills {
+    width: 200px;
+}
+
+.navbar-right-margin{
+    margin-right: 20px;
+}
+
+.settings-dropdown {
+    border-radius: 5px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--my-light);
+}
+
+.settings-dropdown:hover {
+    border-radius: 5px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--my-secondary);
+}
+
+.dropdown-menu-end {
+    margin-right: 20px;
+}
+
+.dropdown-item:active {
+    background-color: var(--my-primary);
+}
+
+input[type='radio']:checked{
+    border: none;
+    background-color: var(--my-secondary);
+}
+
+input[type='radio']:active{
+
+    background-color: var(--my-secondary);
+    border: none;
+    box-shadow: none;
+}
+
+input[type='radio']:focus{
+
+    background-color: var(--my-secondary);
+    box-shadow: 0px 0px 2px var(--my-secondary);
+    border: none;
+}
+
+.banner {
+    height: 150px;
+    background-position: center;
+    background-size: cover;
+    background-blend-mode: overlay;
+}
+
+.school-name {
+    color: black;
+    font-family: 'Pattaya', sans-serif;
+    font-size: 52px;
+}
+
+

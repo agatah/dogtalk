@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/layout::layout(~{::title}, ~{::content})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>DogTalk - portal for dog owners and behaviorists</title>
+</head>
+<body>
+
+<div th:fragment="content" class="container">
+
+  <div class="d-flex flex-column">
+
+    <div class="d-flex flex-row align-items-end shadow">
+      <img th:if="${behaviorist.getPhotoId() == null}" th:src="@{/images/user.svg}" alt="profile picture" width="120px">
+      <img th:if="${behaviorist.getPhotoId() != null}" th:src="@{'../image/'+${behaviorist.getPhotoId()}}" alt="profile picture" width="120px">
+      <h1 class="pb-2 mx-2" th:text="${behaviorist.getFullName()}"></h1>
+    </div>
+
+    <div class="d-flex flex-row justify-content-evenly">
+      <div class="container-fluid flex-row">
+        <span class="school-city px-2" th:each="contact: ${behaviorist.getContacts()}" th:text="${contact.contactType +': '+ contact.value}"></span>
+      </div>
+    </div>
+
+    <h4 class="pt-4 pb-2">Working at:</h4>
+
+    <div class="container-fluid">
+      <div class="list-group">
+        <a class="list-group-item list-group-item-action" th:each="school: ${behaviorist.getSchools()}"
+           th:text="${school.name}" th:href="@{/school/{id}(id=${school.getId()})}"></a>
+      </div>
+    </div>
+
+    <h4 class="pt-4 pb-2">About:</h4>
+    <div class="container-fluid">
+      <p class="word-wrap text-justify" th:text="${behaviorist.about}"></p>
+    </div>
+
+    <h4 class="pt-4 pb-2">Qualifications:</h4>
+    <div class="container-fluid">
+      <p class="word-wrap text-justify" th:text="${behaviorist.qualifications}"></p>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

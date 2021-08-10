@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/layout::layout(~{::title}, ~{::content})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>DogTalk - portal for dog owners and behaviorists</title>
+</head>
+<body>
+<div th:fragment="content" class="container">
+    <script th:src="@{/js/EnableButton.js}"></script>
+    <div class="d-flex flex-column">
+        <div class="d-flex align-items-start">
+
+            <div class="container-fluid" id="v-pills-tabContent">
+
+                <!--                PET OWNER TAB-->
+                <div class="container-fluid" id="owner-tab-content">
+                    <div class="container-fluid">
+                        <div class="d-flex flex-row">
+                            <div class="container-fluid">
+                                <h4>Your pets:</h4>
+                            </div>
+                            <form class="container-fluid text-end" th:action="@{/user/owner/pet}" th:method="POST">
+                                <input class="btn btn-outline-primary align-self-end" type="submit" value="Add new pet">
+                            </form>
+                        </div>
+
+                        <div class="container-fluid my-3" th:each="pet: ${owner.getPets()}" style="border: 1px solid black">
+                            <form th:action="@{/user/owner/pet}" th:method="PUT">
+                                <input type="hidden" name="petId" th:value="${pet.getPetId()}">
+                                <label for="petName">Name: </label>
+                                <input id="petName" type="text" name="name" th:value="${pet.getName()}">
+                                <input class="btn btn-secondary" type="submit" value="SAVE">
+                            </form>
+                            <div th:each="photoId: ${pet.getPhotoIds()}">
+                                <img th:src="@{'../image/'+ ${photoId}}" width="50%">
+
+                            </div>
+                            <form th:action="@{/user/owner/pet/photo}" th:method="POST" enctype="multipart/form-data">
+                                <input type="hidden" name="petId" th:value="${pet.getPetId()}">
+                                <label for="photo">Upload photo (max size - 1MB): </label>
+                                <input id="photo" type="file" accept="image/*" name="file" onchange="enableButton()">
+                                <input class="btn btn-secondary mt-3" type="submit" value="Send" id="sendPhoto" disabled>
+                                <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                            </form>
+                            <form th:action="@{/user/owner/pet}" th:method="DELETE">
+                                <input type="hidden" name="petId" th:value="${pet.getPetId()}">
+                                <input class="btn btn-outline-danger" type="submit" value="DELETE">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

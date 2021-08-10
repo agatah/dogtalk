@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html th:replace="~{layout/layout::layout(~{::title}, ~{::content})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>DogTalk - portal for dog owners and behaviorists</title>
+</head>
+<body>
+<div th:fragment="content" class="container">
+
+  <script th:src="@{/js/ToggleDisplay.js}"></script>
+  <div class="d-flex flex-column">
+    <div class="d-flex align-items-start">
+
+      <div class="container-fluid" id="v-pills-tabContent">
+
+        <!--                BEHAVIORIST TAB-->
+        <div class="container-fluid" id="behaviorist-tab-content">
+          <div class="d-flex flex-column align-items-center">
+            <div class="container-fluid">
+              <div class="d-flex flex-column">
+
+<!--                  PERSONAL INFO PANEL-->
+                <div class="d-flex flex-row align-items-end shadow">
+                  <img th:if="${behaviorist.getPhotoId() == null}" th:src="@{/images/user.svg}" alt="profile picture" width="120px">
+                  <img th:if="${behaviorist.getPhotoId() != null}" th:src="@{'../image/'+${behaviorist.getPhotoId()}}" alt="profile picture" width="120px">
+                  <h1 class="pb-2 mx-2" th:text="${behaviorist.getFullName()}"></h1>
+                </div>
+
+<!--                  CONTACTS DISPLAY-->
+                <div id="contactsDisplay">
+                  <div class="settings-header d-flex flex-row mt-3">
+                    <h4>Contacts: </h4>
+                    <div class="container-fluid text-end">
+                      <button class="btn btn-outline-primary btn-sm" onclick="toggleDisplay('contactsForm', 'contactsDisplay')">
+                        EDIT CONTACTS
+                      </button>
+                    </div>
+                  </div>
+                  <div class="container-fluid">
+                    <p th:if="${behaviorist.getContacts().isEmpty()}">You don't have any contacts yet.</p>
+                  </div>
+                  <div th:if="${!behaviorist.getContacts().isEmpty()}" class="d-flex flex-row justify-content-evenly">
+                    <div class="container-fluid flex-row">
+                      <span class="school-city px-2" th:each="contact: ${behaviorist.getContacts()}" th:text="${contact.contactType +': '+ contact.value}"></span>
+                    </div>
+                  </div>
+                </div>
+
+<!--                  CONTACTS EDIT-->
+                <div id="contactsForm" hidden>
+                  <div class="settings-header d-flex flex-row mt-3">
+                    <h4>Contacts: </h4>
+                    <div class="container-fluid text-end">
+                      <button class="btn btn-outline-primary btn-sm" onclick="toggleDisplay('contactsDisplay', 'contactsForm')">
+                        CLOSE
+                      </button>
+                    </div>
+                  </div>
+                  <table class="table table-hover">
+                    <thead>
+                    <tr>
+                      <th scope="col">Type</th>
+                      <th scope="col">Value</th>
+                      <th scope="colgroup" colspan="2">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="contact: ${behaviorist.getContacts()}">
+                      <form th:object="${contact}" th:action="@{/user/behaviorist/contact}" th:id="'editContact'+${contact.getContactId()}" th:method="PUT">
+                        <td th:text="${contact.contactType.toString().toLowerCase()}"></td>
+                        <td>
+                          <input type="text" name="value" th:value="${contact.value}">
+                          <input type="hidden" name="contactType" th:value="${contact.contactType}">
+                          <input type="hidden" name="contactId" th:value="${contact.getContactId()}">
+                        </td>
+                        <td style="width: 50px">
+                          <input class="btn btn-outline-success btn-sm" type="submit" value="Save">
+
+                        </td>
+                      </form>
+                      <td>
+                        <form th:object="${contact}" th:action="@{/user/behaviorist/contact}" th:id="'editContact'+${contact.getContactId()}" th:method="DELETE">
+                          <input type="hidden" name="value" th:value="${contact.value}">
+                          <input type="hidden" name="contactType" th:value="${contact.contactType}">
+                          <input type="hidden" name="contactId" th:value="${contact.getContactId()}">
+                          <input class="btn btn-outline-danger btn-sm" type="submit" value="Delete">
+                        </form>
+                      </td>
+
+                    </tr>
+                    <tr>
+                      <form th:object="${contact}" th:action="@{/user/behaviorist/contact}" th:method="POST">
+                        <td>
+                          <select name="contactType" class="custom-select">
+                            <option selected value="EMAIL">email</option>
+                            <option value="SITE">site</option>
+                            <option value="PHONE">phone</option>
+                          </select>
+                        </td>
+                        <td>
+                          <input type="text" name="value">
+                        </td>
+                        <td colspan="2">
+                          <input class="btn btn-outline-success btn-sm" type="submit" value="Add contact">
+                        </td>
+                      </form>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+
+                <!--                  SCHOOLS DISPLAY-->
+                <div class="settings-header d-flex flex-row mt-3">
+                  <h4>Working at: </h4>
+                  <div class="container-fluid text-end">
+                    <a class="btn btn-outline-primary btn-sm" th:href="@{/user/school}">
+                      MANAGE SCHOOLS
+                    </a>
+                  </div>
+                </div>
+                <div class="container-fluid">
+                  <p class="mt-2" th:if="${behaviorist.getSchools().isEmpty()}">Currently, you don't have any schools
+                    associated with your profile. Create one or join an existing one to allow users to find your
+                    services.</p>
+                </div>
+
+<!--                    SCHOOL'S LIST-->
+                <div class="container-fluid mt-2">
+                  <ul class="list-group">
+                    <li class="list-group-item"
+                        th:each="privilege: ${behaviorist.getPrivileges()}"
+                        th:text="${privilege.schoolName} + ' ' + ${privilege.getPrivilegeType()}"></li>
+                  </ul>
+                </div>
+
+<!--                  ABOUT AND QUALIFICATIONS DISPLAY-->
+                <div id="aboutDisplay">
+                  <div class="settings-header d-flex flex-row mt-3">
+                    <h4>About: </h4>
+                    <div class="container-fluid text-end">
+                      <button class="btn btn-outline-primary btn-sm" onclick="toggleDisplay('aboutForm', 'aboutDisplay')">
+                        EDIT ABOUT AND QUALIFICATIONS
+                      </button>
+                    </div>
+                  </div>
+                  <div class="container-fluid mt-2">
+                    <p th:if="${behaviorist.getAbout() == null || behaviorist.getAbout() == ''}">This section is currently empty.</p>
+                    <p class="word-wrap text-justify" th:text="${behaviorist.about}"></p>
+                  </div>
+
+                  <h4 class="pt-4 pb-2">Qualifications:</h4>
+                  <div class="container-fluid mt-2">
+                    <p th:if="${behaviorist.getQualifications() == null || behaviorist.getQualifications() == ''}">This section is currently empty.</p>
+                    <p class="text-justify" th:text="${behaviorist.qualifications}"></p>
+                  </div>
+                </div>
+
+<!--                  ABOUT AND QUALIFICATIONS FORM-->
+                <div id="aboutForm" hidden>
+                  <form th:object="${behaviorist}" id="behavioristInfo" th:method="PUT" th:action="@{/user/behaviorist}">
+                    <label class="h4 mt-3" for="about">About:</label>
+                    <div class="container-fluid">
+                      <textarea class="form-control text-justify" rows="10" name="about" id="about"
+                                th:field="${behaviorist.about}"
+                                th:value="${behaviorist.about}"></textarea>
+                    </div>
+
+                    <label class="h4 mt-3" for="qualifications">Qualifications:</label>
+                    <div class="container-fluid">
+                      <textarea class="form-control text-justify" rows="10" name="qualifications"
+                                id="qualifications"
+                                th:field="${behaviorist.qualifications}"
+                                th:value="${behaviorist.qualifications}"></textarea>
+                    </div>
+
+                    <div class="container-fluid text-center mt-3">
+                      <input class="btn btn-outline-primary" type="submit" value="Save">
+                    </div>
+
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
