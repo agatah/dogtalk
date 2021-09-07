@@ -25,8 +25,8 @@
 
     <div class="container-fluid">
       <div class="list-group">
-        <a class="list-group-item list-group-item-action" th:each="school: ${behaviorist.getSchools()}"
-           th:text="${school.name}" th:href="@{/school/{id}(id=${school.getId()})}"></a>
+        <a class="list-group-item list-group-item-action" th:each="school: ${behaviorist.getSchoolWithPrivilegesList()}"
+           th:text="${school.schoolName}" th:href="@{/school/{id}(id=${school.getSchoolId()})}"></a>
       </div>
     </div>
 

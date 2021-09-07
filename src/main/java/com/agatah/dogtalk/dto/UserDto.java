@@ -1,5 +1,6 @@
 package com.agatah.dogtalk.dto;
 
+import com.agatah.dogtalk.model.enums.RoleType;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -30,7 +31,7 @@ public class UserDto {
 
     private Long photoId;
 
-    private String role;
+    private RoleType role;
 
     @AssertTrue(message = "repeated password should be the same", groups = {PasswordInfo.class, UserRegister.class})
     private boolean isPasswordSame(){

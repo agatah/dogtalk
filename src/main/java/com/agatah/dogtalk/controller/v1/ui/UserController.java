@@ -16,6 +16,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @Controller
@@ -92,5 +94,13 @@ public class UserController {
         Photo photo = new Photo().setImage(file.getBytes());
         userService.addPhoto(user.getId(), photo);
         return "redirect:/user/info";
+    }
+
+    @PostMapping("/delete")
+    public String deleteUser(Authentication authentication, HttpServletRequest httpServletRequest) throws ServletException {
+        UserDetailsDto userDetails = (UserDetailsDto) authentication.getPrincipal();
+        userService.deleteUserById(userDetails.getUserId());
+        httpServletRequest.logout();
+        return "redirect:/";
     }
 }

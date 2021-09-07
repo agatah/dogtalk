@@ -23,23 +23,21 @@ public class Pet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pet_sequence")
     private Long id;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private PetOwnerProfile owner;
 
     private String name;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "pet_photos",
-            joinColumns = {@JoinColumn(name = "pet_id")},
-            inverseJoinColumns = {@JoinColumn(name = "photo_id")})
-    private List<Photo> photos = new ArrayList<>();
+    private String breed;
+
+    private String age;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "photo_id")
+    private Photo photo;
 
 
-    public Pet addPhoto(Photo photo){
-        photos.add(photo);
-        return this;
-    }
 
     //EqualsAndHashCode
 

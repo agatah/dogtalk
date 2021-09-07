@@ -6,6 +6,8 @@ import lombok.experimental.Accessors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 @Data
@@ -17,11 +19,11 @@ public class UserDetailsDto implements UserDetails {
     private String firstName;
     private String lastName;
     private String password;
-    private Collection<Role> roles;
+    private Role role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles;
+        return Arrays.asList(role);
     }
 
     @Override

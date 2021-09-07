@@ -5,13 +5,10 @@
 
 </head>
 <body>
-<div th:fragment="content" class="container text-center">
+<div th:fragment="content" class="container text-center" style="width: 85%">
 
-    <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
-        <div class="col-10 col-sm-8 col-lg-6">
-            <img th:src="@{/images/dogs.svg}" alt="picture of dogs" width="600px">
-        </div>
-        <div class="col-lg-6">
+    <div class="d-flex flex-row mt-5">
+        <div class="container-fluid">
             <h1 class="fs-1">Welcome to <em>DogTalk</em></h1>
             <h2>- portal for dog owners and behaviorists</h2>
             <br>
@@ -23,6 +20,9 @@
                 Are you a behaviorist? Create a profile of your school to broadcast your services on our website and let
                 thousands of users find you!
             </p>
+        </div>
+        <div class="container-fluid">
+            <img th:src="@{/images/dogs.svg}" alt="picture of dogs" width="100%">
         </div>
     </div>
 </div>

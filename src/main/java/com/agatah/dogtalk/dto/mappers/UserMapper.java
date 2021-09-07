@@ -26,6 +26,6 @@ public class UserMapper {
                 .setFirstName(user.getFirstName())
                 .setLastName(user.getLastName())
                 .setPassword(user.getPassword())
-                .setRoles(user.getRoles());
+                .setRole(user.getRole());
     }
 }

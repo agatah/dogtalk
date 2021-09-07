@@ -25,10 +25,14 @@ public class PetService {
         this.photoService = photoService;
     }
 
-    public PetProfileDto createPetProfile(Long ownerId){
+    public PetProfileDto createPetProfile(Long ownerId, PetProfileDto petProfile){
         Optional<PetOwnerProfile> ownerProfileOpt = ownerProfileRepository.findById(ownerId);
         if(ownerProfileOpt.isPresent()){
-            Pet pet = new Pet().setOwner(ownerProfileOpt.get());
+            Pet pet = new Pet()
+                    .setOwner(ownerProfileOpt.get())
+                    .setName(petProfile.getPetName())
+                    .setAge(petProfile.getAge())
+                    .setBreed(petProfile.getBreed());
             return PetProfileMapper.toPetProfileDto(petProfileRepository.save(pet));
         } else {
             return null;
@@ -43,7 +47,7 @@ public class PetService {
         Optional<Pet> petProfileOpt = petProfileRepository.findById(petProfileDto.getPetId());
         if(petProfileOpt.isPresent()){
             Pet dbPet = petProfileOpt.get();
-            dbPet.setName(petProfileDto.getName());
+            dbPet.setName(petProfileDto.getPetName());
             return PetProfileMapper.toPetProfileDto(petProfileRepository.save(dbPet));
         } else {
             return null;
@@ -53,7 +57,7 @@ public class PetService {
     public PetProfileDto addPhoto(Long petId, Photo photo){
         Optional<Pet> petOpt = petProfileRepository.findById(petId);
         if(petOpt.isPresent()){
-            PetProfileMapper.toPetProfileDto(petProfileRepository.save(petOpt.get().addPhoto(photoService.uploadPhoto(photo))));
+            PetProfileMapper.toPetProfileDto(petProfileRepository.save(petOpt.get().setPhoto(photoService.uploadPhoto(photo))));
         }
         return null;
     }

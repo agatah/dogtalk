@@ -15,17 +15,16 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Accessors(chain = true)
 @Table(name = "behaviorists")
 public class BehavioristProfile{
 
     @Id
-    @SequenceGenerator(name = "behaviorist_sequence", sequenceName = "behaviorist_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "behaviorist_sequence")
+    @Column(insertable = false, updatable = false)
     private Long id;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -41,24 +40,27 @@ public class BehavioristProfile{
     private String qualifications;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "behaviorist", orphanRemoval = true)
-    private List<Privilege> privileges = new ArrayList<>();
+    private List<BehavioristPrivilegesInSchool> behavioristPrivilegesInSchools = new ArrayList<>();
 
-    @OneToOne()
-    @JoinColumn(name = "user_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
     private User user;
 
-    public BehavioristProfile addSchoolWithPrivilege(School school, PrivilegeType privilege){
-        privileges.add(new Privilege().setPrivilegeType(privilege).setSchool(school).setBehaviorist(this));
+    public BehavioristProfile addSchoolWithPrivileges(School school, List<Privilege> privileges){
+        behavioristPrivilegesInSchools.add(new BehavioristPrivilegesInSchool()
+                .setPrivileges(privileges)
+                .setSchool(school)
+                .setBehaviorist(this));
         return this;
     }
 
     public BehavioristProfile removeSchoolWithPrivilege(School school){
-        Optional<Privilege> privilegeOpt = privileges.stream()
-                .filter(s -> s.getSchool().equals(school))
+        Optional<BehavioristPrivilegesInSchool> privilegeOpt = behavioristPrivilegesInSchools.stream()
+                .filter(s -> s.getSchool().getId().equals(school.getId()))
                 .findFirst();
         if(privilegeOpt.isPresent()){
-            privileges.remove(privilegeOpt.get());
-            school.getPrivileges().remove(privilegeOpt.get());
+            behavioristPrivilegesInSchools.remove(privilegeOpt.get());
+            school.getBehavioristPrivilegesInSchools().remove(privilegeOpt.get());
         }
         return this;
     }

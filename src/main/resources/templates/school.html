@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html th:replace="~{layout/layout::layout(~{::title}, ~{::content})}" xmlns:th="http://www.thymeleaf.org">
+<html th:replace="~{layout/layout::layout(~{::title}, ~{::content})}" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
   <title>DogTalk - portal for dog owners and behaviorists</title>
 </head>
@@ -9,7 +10,7 @@
   <div class="d-flex flex-column">
 
     <div th:if="${school.getBannerId() == null}" class="d-flex align-items-end justify-content-center shadow banner">
-      <h1 class="school-name" th:text="${school.name}"></h1>
+      <h1 class="school-name text-break" th:text="${school.name}"></h1>
     </div>
     <div th:if="${school.getBannerId() != null}" class="d-flex align-items-end justify-content-center shadow banner"
          th:with="bannerUrl = '/image/' + ${school.getBannerId()}"
@@ -19,6 +20,16 @@
     <div class="d-flex flex-row">
       <p class="school-city px-2" th:each="contact: ${school.getContacts()}" th:text="${contact.contactType + contact.value}"></p>
       <p class="school-city px-2" th:each="location: ${school.locations}" th:text="${location.city}"></p>
+      <div class="container-fluid text-end" id="join" sec:authorize="hasRole('ROLE_BEHAVIORIST')">
+        <form th:if="${!school.getBehavioristIds().contains(userId)} and ${!school.getBehavioristRequestedIds().contains(userId)}"
+              th:action="@{'/school/' + ${school.getId()} + '/join'}" th:method="POST">
+          <button class="btn btn-secondary btn-sm">SEND JOIN REQUEST</button>
+          <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+        </form>
+        <div th:if="${school.getBehavioristRequestedIds().contains(userId)}">
+          <button class="btn btn-secondary btn-sm" disabled>JOIN REQUEST SEND</button>
+        </div>
+      </div>
     </div>
 
     <h4 class="pt-4 pb-2">Behaviorists working here:</h4>

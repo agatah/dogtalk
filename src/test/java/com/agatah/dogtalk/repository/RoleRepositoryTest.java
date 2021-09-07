@@ -1,6 +1,7 @@
 package com.agatah.dogtalk.repository;
 
 import com.agatah.dogtalk.model.Role;
+import com.agatah.dogtalk.model.enums.RoleType;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -23,10 +23,9 @@ class RoleRepositoryTest {
 
     @BeforeAll
     void setUp() {
-        Role role1 = new Role().setName("ROLE_USER");
-        Role role2 = new Role().setName("ROLE_BEHAVIORIST");
-
-        underTest.saveAll(Arrays.asList(role1, role2));
+        underTest.deleteAll();
+        Role role1 = new Role().setRoleType(RoleType.ROLE_BEHAVIORIST);
+        underTest.save(role1);
     }
 
     @AfterAll
@@ -35,24 +34,18 @@ class RoleRepositoryTest {
     }
 
     @Test
-    void itShouldFindRoleByName() {
-        // given
-        String roleUser = "ROLE_USER";
-
+    void itShouldFindRoleByType() {
         // when
-        Optional<Role> dbRoleOpt = underTest.findByName(roleUser);
+        Optional<Role> dbRoleOpt = underTest.findByRoleType(RoleType.ROLE_BEHAVIORIST);
 
         // then
         assertThat(dbRoleOpt.isPresent()).isTrue();
     }
 
     @Test
-    void itShouldNotFindRoleByName() {
-        // given
-        String roleUser = "ROLE_ADMIN";
-
+    void itShouldNotFindRoleByType() {
         // when
-        Optional<Role> dbRoleOpt = underTest.findByName(roleUser);
+        Optional<Role> dbRoleOpt = underTest.findByRoleType(RoleType.ROLE_PET_OWNER);
 
         // then
         assertThat(dbRoleOpt.isPresent()).isFalse();

@@ -1,11 +1,10 @@
 package com.agatah.dogtalk.repository;
 
 import com.agatah.dogtalk.model.Privilege;
+import com.agatah.dogtalk.model.enums.PrivilegeType;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
 
 public interface PrivilegeRepository extends JpaRepository<Privilege, Long> {
 
-    List<Privilege> findAllByBehaviorist_Id(Long id);
+    Privilege findPrivilegeByPrivilegeType(PrivilegeType privilegeType);
 }

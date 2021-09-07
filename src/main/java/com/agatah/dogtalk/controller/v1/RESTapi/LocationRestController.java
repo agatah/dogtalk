@@ -35,7 +35,7 @@ public class LocationRestController {
         return locationService.getAllLocations()
                 .stream()
                 .map(LocationDto::toString)
-                .filter(city -> city.toLowerCase().contains(term))
+                .filter(city -> city.toLowerCase().contains(term.toLowerCase()))
                 .limit(10)
                 .collect(Collectors.toList());
     }

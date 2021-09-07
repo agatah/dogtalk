@@ -11,12 +11,21 @@ main .container {
 
 .navbar-brand {
     font-family: 'Pattaya', sans-serif;
-    color: var(--my-primary);
+    color: var(--my-primary)!important;
 
 }
 
+.error-code {
+    font-family: 'Pattaya', sans-serif;
+    font-size: 82px;
+}
+
 .container {
-    width: 65%;
+    width: 70vw;
+}
+
+.container-home {
+    width: 80vw;
 }
 
 .navbar {
@@ -131,8 +140,8 @@ p {
     color: var(--my-primary);
 }
 
-.me-6 {
-    margin-right: 80px;
+.margin-label {
+    margin-right: 150px;
 }
 
 .dashed {
@@ -204,5 +213,41 @@ input[type='radio']:focus{
     font-family: 'Pattaya', sans-serif;
     font-size: 52px;
 }
+
+.width-min {
+    width: min-content;
+    word-break: normal;
+}
+
+.label-width {
+    width: 150px;
+}
+
+.margin-block-auto {
+    margin-block: auto;
+}
+
+#ui-id-1 {
+    z-index: 9999;
+}
+
+.pet-card {
+    display: flex;
+    flex-direction: row;
+    width: 50%;
+    box-shadow: 2px 2px 5px dimgray;
+    padding: 10px 10px 10px 10px;
+}
+
+.pet-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
+}
+
+
+
 
 

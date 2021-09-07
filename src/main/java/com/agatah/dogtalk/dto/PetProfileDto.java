@@ -12,6 +12,8 @@ public class PetProfileDto {
 
     private Long petId;
     private Long ownerId;
-    private String name;
-    private List<Long> photoIds = new ArrayList<>();
+    private String petName;
+    private String breed;
+    private String age;
+    private Long photoId;
 }

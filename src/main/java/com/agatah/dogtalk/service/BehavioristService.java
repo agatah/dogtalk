@@ -1,23 +1,18 @@
 package com.agatah.dogtalk.service;
 
-import com.agatah.dogtalk.dto.BehavioristFullProfileDto;
-import com.agatah.dogtalk.dto.BehavioristShortProfileDto;
-import com.agatah.dogtalk.dto.ContactDto;
-import com.agatah.dogtalk.dto.SchoolShortDto;
+import com.agatah.dogtalk.dto.*;
 import com.agatah.dogtalk.dto.mappers.BehavioristProfileMapper;
 import com.agatah.dogtalk.dto.mappers.ContactMapper;
-import com.agatah.dogtalk.model.BehavioristProfile;
-import com.agatah.dogtalk.model.Contact;
-import com.agatah.dogtalk.model.School;
-import com.agatah.dogtalk.model.User;
+import com.agatah.dogtalk.dto.mappers.LocationMapper;
+import com.agatah.dogtalk.model.*;
 import com.agatah.dogtalk.model.enums.PrivilegeType;
-import com.agatah.dogtalk.repository.BehavioristProfileRepository;
-import com.agatah.dogtalk.repository.ContactRepository;
-import com.agatah.dogtalk.repository.SchoolRepository;
-import com.agatah.dogtalk.repository.UserRepository;
+import com.agatah.dogtalk.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,17 +20,26 @@ import java.util.stream.Collectors;
 @Service
 public class BehavioristService {
 
-    private BehavioristProfileRepository behavioristProfileRepository;
-    private ContactRepository contactRepository;
-    private UserRepository userRepository;
-    private SchoolRepository schoolRepository;
+    private final BehavioristProfileRepository behavioristProfileRepository;
+    private final ContactRepository contactRepository;
+    private final SchoolRepository schoolRepository;
+    private final PrivilegeRepository privilegeRepository;
+    private final SchoolService schoolService;
+    private final LocationRepository locationRepository;
+    private final BehavioristPrivilegesInSchoolRepository behavioristPrivilegesInSchoolRepository;
 
+    @Autowired
     public BehavioristService(BehavioristProfileRepository behavioristProfileRepository, ContactRepository contactRepository,
-                              UserRepository userRepository, SchoolRepository schoolRepository){
+                              SchoolRepository schoolRepository, PrivilegeRepository privilegeRepository,
+                              SchoolService schoolService, LocationRepository locationRepository,
+                              BehavioristPrivilegesInSchoolRepository behavioristPrivilegesInSchoolRepository) {
         this.behavioristProfileRepository = behavioristProfileRepository;
         this.contactRepository = contactRepository;
-        this.userRepository = userRepository;
         this.schoolRepository = schoolRepository;
+        this.privilegeRepository = privilegeRepository;
+        this.schoolService = schoolService;
+        this.locationRepository = locationRepository;
+        this.behavioristPrivilegesInSchoolRepository = behavioristPrivilegesInSchoolRepository;
     }
 
     public List<BehavioristFullProfileDto> getAllBehaviorists() {
@@ -62,16 +66,6 @@ public class BehavioristService {
         }
     }
 
-    public BehavioristFullProfileDto getBehavioristByUserId(Long id){
-        Optional<BehavioristProfile> behavioristOpt = behavioristProfileRepository.findBehavioristProfileByUser_Id(id);
-        if(behavioristOpt.isPresent()){
-            return BehavioristProfileMapper
-                    .toBehavioristFullProfileDto(behavioristOpt.get());
-        } else {
-            return null;
-        }
-    }
-
     public BehavioristShortProfileDto getBehavioristShortById(Long id){
         Optional<BehavioristProfile> behavioristDtoOpt = behavioristProfileRepository.findById(id);
         if(behavioristDtoOpt.isPresent()){
@@ -87,12 +81,23 @@ public class BehavioristService {
         return behavioristProfileRepository.save(behavioristProfile);
     }
 
-    public BehavioristFullProfileDto updateBehavioristInfo(Long id, BehavioristFullProfileDto behaviorist){
+    public BehavioristFullProfileDto updateBehavioristAbout(Long id, BehavioristFullProfileDto behaviorist){
         Optional<BehavioristProfile> dbBehavioristOpt = behavioristProfileRepository.findById(id);
         if(dbBehavioristOpt.isPresent()){
             BehavioristProfile dbBehaviorist = dbBehavioristOpt.get();
             dbBehaviorist
-                    .setAbout(behaviorist.getAbout())
+                    .setAbout(behaviorist.getAbout());
+            return BehavioristProfileMapper.toBehavioristFullProfileDto(behavioristProfileRepository.save(dbBehaviorist));
+        } else {
+            return null;
+        }
+    }
+
+    public BehavioristFullProfileDto updateBehavioristQualifications(Long id, BehavioristFullProfileDto behaviorist){
+        Optional<BehavioristProfile> dbBehavioristOpt = behavioristProfileRepository.findById(id);
+        if(dbBehavioristOpt.isPresent()){
+            BehavioristProfile dbBehaviorist = dbBehavioristOpt.get();
+            dbBehaviorist
                     .setQualifications(behaviorist.getQualifications());
             return BehavioristProfileMapper.toBehavioristFullProfileDto(behavioristProfileRepository.save(dbBehaviorist));
         } else {
@@ -137,24 +142,82 @@ public class BehavioristService {
     }
 
     @Transactional
-    public BehavioristFullProfileDto createBehavioristSchool(Long behavioristId, String schoolName){
+    public BehavioristFullProfileDto createBehavioristSchool(Long behavioristId, SchoolForm schoolForm){
         Optional<BehavioristProfile> behavioristOpt = behavioristProfileRepository.findById(behavioristId);
         if(behavioristOpt.isPresent()){
-            School school = new School().setName(schoolName);
-            behavioristOpt.get().addSchoolWithPrivilege(school, PrivilegeType.ALL);
+            School school = new School().setName(schoolForm.getFormSchoolName());
+            for(LocationDto locationDto: schoolForm.getLocations()){
+                Optional<Location> locationOpt = locationRepository.findByCity(locationDto.getCity());
+                if(locationOpt.isPresent()){
+                    school.addLocation(locationOpt.get());
+                } else {
+                    Location dbLocation = locationRepository.save(LocationMapper.toLocation(locationDto));
+                    school.addLocation(dbLocation);
+                }
+            }
+            behavioristOpt.get().addSchoolWithPrivileges(school, Arrays.asList(privilegeRepository.findPrivilegeByPrivilegeType(PrivilegeType.MANAGE)));
             return BehavioristProfileMapper.toBehavioristFullProfileDto(behavioristProfileRepository.save(behavioristOpt.get()));
         }
         return null;
     }
 
     @Transactional
-    public BehavioristFullProfileDto addBehavioristToSchool(Long behavioristId, Long schoolId, PrivilegeType privilege) {
+    public BehavioristFullProfileDto addBehavioristToSchool(Long behavioristId, Long schoolId, List<Privilege> privilegeDtoList) {
         Optional<BehavioristProfile> behavioristOpt = behavioristProfileRepository.findById(behavioristId);
         if(behavioristOpt.isPresent()){
+            List<Privilege> dbPrivileges = new ArrayList<>();
+            for(Privilege privilege: privilegeDtoList){
+                dbPrivileges.add(privilegeRepository.findPrivilegeByPrivilegeType(privilege.getPrivilegeType()));
+            }
             return BehavioristProfileMapper.toBehavioristFullProfileDto(
-                    behavioristOpt.get().addSchoolWithPrivilege(schoolRepository.findById(schoolId).get(), privilege));
+                    behavioristOpt.get().addSchoolWithPrivileges(schoolRepository.findById(schoolId).get(), dbPrivileges));
         } else {
             return null;
+        }
+    }
+
+    @Transactional
+    public BehavioristFullProfileDto leaveSchool(Long behavioristId, Long schoolId){
+        Optional<BehavioristProfile> behavioristProfileOpt = behavioristProfileRepository.findById(behavioristId);
+        if(behavioristProfileOpt.isPresent()){
+            BehavioristProfile dbBehaviorist = behavioristProfileOpt.get();
+            dbBehaviorist.removeSchoolWithPrivilege(schoolRepository.getById(schoolId));
+            schoolService.deleteSchoolIfNoneBehavioristHasPrivilegeManage(schoolId);
+            return BehavioristProfileMapper.toBehavioristFullProfileDto(behavioristProfileRepository.save(dbBehaviorist));
+        } else {
+            return null;
+        }
+    }
+
+    public void removeBehavioristFromSchool(Long behavioristId, Long schoolId){
+        Optional<BehavioristPrivilegesInSchool> behavioristPrivilegesInSchoolOpt = behavioristPrivilegesInSchoolRepository.findByBehaviorist_IdAndSchool_Id(behavioristId, schoolId);
+        if(behavioristPrivilegesInSchoolOpt.isPresent()){
+            BehavioristPrivilegesInSchool behavioristPrivilegesInSchool = behavioristPrivilegesInSchoolOpt.get();
+            if(!behavioristPrivilegesInSchool.hasPrivilegeManage()){
+                leaveSchool(behavioristId, schoolId);
+            }
+        }
+    }
+
+    public BehavioristPrivilegesInSchool updateBehavioristPrivileges(Long schoolId, Long behavioristId, List<PrivilegeType> privileges){
+        Optional<BehavioristPrivilegesInSchool> behavioristPrivilegesInSchoolOpt =
+                behavioristPrivilegesInSchoolRepository.findByBehaviorist_IdAndSchool_Id(behavioristId, schoolId);
+        if(behavioristPrivilegesInSchoolOpt.isPresent()){
+            List<Privilege> dbPrivileges = new ArrayList<>();
+            for(PrivilegeType privilegeType: privileges){
+                dbPrivileges.add(privilegeRepository.findPrivilegeByPrivilegeType(privilegeType));
+            }
+            BehavioristPrivilegesInSchool dbBehavioristPrivilegesInSchool = behavioristPrivilegesInSchoolOpt.get();
+            return behavioristPrivilegesInSchoolRepository.save(dbBehavioristPrivilegesInSchool.setPrivileges(dbPrivileges));
+        } else {
+            return null;
+        }
+    }
+
+    public void deleteById(Long userId){
+        Optional<BehavioristProfile> behavioristProfileOpt = behavioristProfileRepository.findById(userId);
+        if(behavioristProfileOpt.isPresent()){
+            behavioristProfileRepository.deleteById(userId);
         }
     }
 }

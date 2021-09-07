@@ -1,6 +1,7 @@
 package com.agatah.dogtalk.service;
 
 import com.agatah.dogtalk.dto.UserDto;
+import com.agatah.dogtalk.model.enums.RoleType;
 import com.agatah.dogtalk.repository.RoleRepository;
 import com.agatah.dogtalk.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +59,7 @@ class UserServiceTest {
                 .setEmail(email)
                 .setPassword("password")
                 .setLastName("lastName")
-                .setRole("ROLE_BEHAVIORIST");
+                .setRole(RoleType.ROLE_BEHAVIORIST);
 
 
         // when

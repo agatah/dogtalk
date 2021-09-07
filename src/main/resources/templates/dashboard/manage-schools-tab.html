@@ -1,95 +1,152 @@
 <!DOCTYPE html>
 <html th:replace="~{layout/layout::layout(~{::title}, ~{::content})}" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>DogTalk - portal for dog owners and behaviorists</title>
+    <meta charset="UTF-8">
+    <title>DogTalk - portal for dog owners and behaviorists</title>
 </head>
 <body>
 <div th:fragment="content" class="container">
     <script th:src="@{/js/ToggleDisplay.js}"></script>
     <script>
-        window.onload = function showFormIfHasErrors(){
+        window.onload = function showFormIfHasErrors() {
             let errors = document.getElementsByClassName('text-danger');
-            if(errors.length > 0){
+            if (errors.length > 0) {
                 toggleDisplay('schoolsForm', 'schoolsDisplay');
             }
         }
     </script>
+    <script>
+        let n = 1;
 
-  <div class="d-flex flex-column">
-    <div class="d-flex align-items-start">
-
-      <div class="container-fluid" id="v-pills-tabContent">
-
-        <!--                MANAGE SCHOOLS TAB-->
-        <div class="container-fluid" id="manage-schools-tab-content">
-          <div class="d-flex flex-column">
-
-
-<!--                SCHOOLS DISPLAY-->
-              <div id="schoolsDisplay" class="container-fluid">
-                  <div class="settings-header d-flex flex-row mt-3">
-                      <h4>Your schools:</h4>
-                      <div class="container-fluid text-end">
-                          <input class="btn btn-outline-primary btn-sm" type="submit" value="CREATE NEW SCHOOL"
-                          onclick="toggleDisplay('schoolsForm', 'schoolsDisplay')">
-                          <a class="btn btn-outline-primary btn-sm" th:href="@{/search}">JOIN SCHOOL</a>
-                      </div>
-                  </div>
-
-                  <div class="container-fluid mt-1" th:if="${privileges == null || privileges.isEmpty()}">
-                      <h4>Currently you are not working in any behavioral school</h4>
-                      <p>Create a new school or send a request to join an already existing one to enable pet owners find
-                          you.</p>
-                  </div>
-                  <div  th:if="${privileges != null && !privileges.isEmpty()}" class="container-fluid mt-3">
-                      <div class="list-group">
-                          <div class="list-group-item" th:each="privilege: ${privileges}">
-                              <a th:text="${privilege.getSchoolName()}" th:href="@{/school/{id}(id=${privilege.getSchoolId()})}">
-                              </a>
-                              <span th:text="${privilege.getPrivilegeType()}">type</span>
-                          </div>
-                      </div>
-                  </div>
-              </div>
+        function addCityInput() {
+            let citiesContainer = document.getElementById("cities");
+            let input = document.createElement("input");
+            input.type = "text";
+            input.name = "locations[" + n + "].city";
+            input.id = "locations" + n + ".city";
+            citiesContainer.appendChild(document.createElement("br"));
+            citiesContainer.appendChild(input);
+            n += 1;
+        }
+    </script>
 
 
-              <!--                  SCHOOL FORM-->
-              <div id="schoolsForm" class="container-fluid" hidden>
-                  <div class="settings-header d-flex flex-row mt-3">
-                      <h4>Your schools:</h4>
-                      <div class="container-fluid text-end">
-                          <input class="btn btn-outline-success btn-sm" type="button"
-                                 onclick="document.getElementById('submitSchool').click()" value="SAVE">
-                          <input class="btn btn-outline-danger btn-sm" type="button" value="CANCEL"
-                          onclick="
+    <!--                SCHOOLS DISPLAY-->
+    <div id="schoolsDisplay" class="container-fluid">
+        <div class="settings-header d-flex flex-row mt-3">
+            <h4>Your schools:</h4>
+            <div class="container-fluid text-end">
+                <input class="btn btn-outline-primary btn-sm" type="submit" value="CREATE NEW SCHOOL"
+                       onclick="toggleDisplay('schoolsForm', 'schoolsDisplay')">
+                <a class="btn btn-outline-primary btn-sm" th:href="@{/search}">JOIN SCHOOL</a>
+            </div>
+        </div>
+
+        <div class="container-fluid mt-1" th:if="${privileges == null or privileges.isEmpty()}">
+            <h4>Currently you are not working in any behavioral school</h4>
+            <p>Create a new school or send a request to join an already existing one to enable pet owners find
+                you.</p>
+        </div>
+        <div th:if="${privileges != null and !privileges.isEmpty()}" class="container-fluid mt-3">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">School's name</th>
+                    <th scope="colgroup" colspan="3">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="privilege: ${privileges}"
+                    th:if="${!privilege.getPrivileges().contains(T(com.agatah.dogtalk.model.enums.PrivilegeType).JOIN_REQUEST)}">
+                    <td class="container-fluid text-break" th:text="${privilege.schoolName}">NAME</td>
+                    <td class="width-min">
+                        <form th:action="@{/user/school}" th:method="DELETE"
+                              th:if="${privilege.getPrivileges().contains(T(com.agatah.dogtalk.model.enums.PrivilegeType).MANAGE)}">
+                            <input type="hidden" th:value="${privilege.schoolId}" name="schoolId">
+                            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                            <button class="btn btn-danger btn-sm" type="submit">DELETE</button>
+                        </form>
+                    </td>
+                    <td class="width-min" th:if="${privilege.getPrivileges().contains(T(com.agatah.dogtalk.model.enums.PrivilegeType).EDIT)
+                                or privilege.getPrivileges().contains(T(com.agatah.dogtalk.model.enums.PrivilegeType).MANAGE)}">
+                        <a class="btn btn-secondary btn-sm"
+                           th:href="@{'/user/school/' + ${privilege.schoolId}}">EDIT</a>
+                    </td>
+                    <td class="width-min">
+                        <form th:action="@{/user/school/leave}" th:method="POST">
+                            <input type="hidden" th:value="${privilege.schoolId}" name="schoolId">
+                            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                            <button class="btn btn-warning btn-sm" type="submit">LEAVE</button>
+                        </form>
+                    </td>
+
+                </tr>
+                <tr th:each="privilege: ${privileges}"
+                    th:if="${privilege.getPrivileges().contains(T(com.agatah.dogtalk.model.enums.PrivilegeType).JOIN_REQUEST)}">
+                    <td class="container-fluid text-break" th:text="${privilege.schoolName}">NAME</td>
+                    <td colspan="2" class="text-center">
+                        <span class="small">JOIN REQUEST SEND</span>
+                    </td>
+                    <td class="width-min">
+                        <form th:action="@{/user/school}" th:method="DELETE">
+                            <input type="hidden" th:value="${privilege.schoolId}" name="schoolId">
+                            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                            <button class="btn btn-danger btn-sm">CANCEL</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <!--                  SCHOOL FORM-->
+    <div id="schoolsForm" class="container-fluid" hidden>
+        <div class="settings-header d-flex flex-row mt-3">
+            <h4>Fill the information:</h4>
+            <div class="container-fluid text-end">
+                <input class="btn btn-outline-success btn-sm" type="button"
+                       onclick="document.getElementById('submitSchool').click()" value="SAVE">
+                <input class="btn btn-outline-danger btn-sm" type="button" value="CANCEL"
+                       onclick="
                           toggleDisplay('schoolsDisplay', 'schoolsForm');
                           document.getElementById('formSchoolName').value = '';
-                          document.getElementById('schoolNameError').hidden = true";>
-                      </div>
-                  </div>
-                  <div class="container-fluid mt-3">
-                      <form th:action="@{/user/school}" th:method="POST" th:object="${schoolForm}">
-                          <div class="text-end me-6">
-                              <label for="formSchoolName">Name: </label>
-                              <input id="formSchoolName" type="text" th:field="${schoolForm.formSchoolName}">
-                              <input id="submitSchool" class="btn btn-outline-primary btn-sm" type="submit" hidden>
-                              <br>
-                              <span id="schoolNameError" class="text-danger" th:if="${#fields.hasErrors('formSchoolName')}"
-                                    th:errors="${schoolForm.formSchoolName}"></span>
-                          </div>
-                          <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
-                      </form>
-                  </div>
-              </div>
-          </div>
-
-
-          </div>
+                          document.getElementById('schoolNameError').hidden = true" ;>
+            </div>
         </div>
-      </div>
+        <div class="d-flex flex-column align-items-center mt-3">
+            <form th:action="@{/user/school}" th:method="POST" th:object="${schoolForm}">
+                <div class="text-end margin-label">
+                    <label class="label-width" for="formSchoolName">School's name: </label>
+                    <input id="formSchoolName" type="text" th:field="*{formSchoolName}">
+                    <input id="submitSchool" class="btn btn-outline-primary btn-sm" type="submit" hidden>
+                    <br>
+                    <span id="schoolNameError" class="text-danger" th:if="${#fields.hasErrors('formSchoolName')}"
+                          th:errors="${schoolForm.formSchoolName}"></span>
+                </div>
+
+                <div class="text-end margin-label">
+                    <div th:each="location, stats: ${schoolForm.locations}" id="cities">
+                        <label class="label-width" for="cities">City:</label>
+                        <input type="text" id="locations0.city" name="locations[0].city"
+                               th:value="${schoolForm.locations.get(stats.index).city}">
+                        <p class="text-danger" th:if="${#fields.hasErrors('locations[0].city')}"
+                           th:errors="${schoolForm.locations[0].city}"></p>
+                    </div>
+                    <span id="locationsError" class="text-danger" th:if="${#fields.hasErrors('locations')}"
+                          th:errors="${schoolForm.locations}"></span>
+
+                </div>
+                <div class="text-center">
+                    <button class="btn btn-secondary btn-sm" type="button" onclick="addCityInput()">Add city</button>
+                </div>
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+            </form>
+        </div>
     </div>
-  </div>
+
+
 </div>
 </body>
 </html>

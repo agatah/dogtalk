@@ -3,12 +3,16 @@ package com.agatah.dogtalk.controller.v1.ui;
 import com.agatah.dogtalk.dto.BehavioristFullProfileDto;
 import com.agatah.dogtalk.dto.ContactDto;
 import com.agatah.dogtalk.dto.UserDetailsDto;
+import com.agatah.dogtalk.model.Privilege;
+import com.agatah.dogtalk.model.enums.PrivilegeType;
 import com.agatah.dogtalk.service.BehavioristService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
 
 @Controller
 @SessionAttributes(names = {"behaviorist", "user"})
@@ -30,14 +34,20 @@ public class BehavioristProfileController {
     @GetMapping("/user/behaviorist")
     public String showBehavioristTab(Model model, Authentication authentication){
         UserDetailsDto userDetails = (UserDetailsDto) authentication.getPrincipal();
-        model.addAttribute("behaviorist", behavioristService.getBehavioristByUserId(userDetails.getUserId()));
+        model.addAttribute("behaviorist", behavioristService.getBehavioristById(userDetails.getUserId()));
         return "dashboard/behaviorist-tab";
     }
 
-    @PutMapping("/user/behaviorist")
-    public String updateBehavioristInfo(@ModelAttribute("behaviorist") BehavioristFullProfileDto behaviorist, Model model){
-        model.addAttribute("behaviorist", behavioristService.updateBehavioristInfo(behaviorist.getId(), behaviorist));
-        return "dashboard/behaviorist-tab";
+    @PutMapping("/user/behaviorist/about")
+    public String updateBehavioristAbout(@ModelAttribute("behaviorist") BehavioristFullProfileDto behaviorist, Model model){
+        model.addAttribute("behaviorist", behavioristService.updateBehavioristAbout(behaviorist.getId(), behaviorist));
+        return "redirect:/user/behaviorist";
+    }
+
+    @PutMapping("/user/behaviorist/qualifications")
+    public String updateBehavioristQualifications(@ModelAttribute("behaviorist") BehavioristFullProfileDto behaviorist, Model model){
+        model.addAttribute("behaviorist", behavioristService.updateBehavioristQualifications(behaviorist.getId(), behaviorist));
+        return "redirect:/user/behaviorist";
     }
 
     @PutMapping("/user/behaviorist/contact")
@@ -57,6 +67,9 @@ public class BehavioristProfileController {
         behavioristService.addBehavioristContact(behaviorist.getId(), contact);
         return "redirect:/user/behaviorist";
     }
+
+
+
 
 
 }

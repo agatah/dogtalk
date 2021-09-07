@@ -49,7 +49,7 @@ class SchoolRepositoryTest {
     @Test
     void itShouldFind2SchoolsByCity1() {
         // when
-        List<School> dbSchoolsList = underTest.findByLocationsCity("city1");
+        List<School> dbSchoolsList = underTest.findAllByLocationsCity("city1");
 
         // then
         assertThat(dbSchoolsList.size()).isEqualTo(2);
@@ -58,7 +58,7 @@ class SchoolRepositoryTest {
     @Test
     void itShouldNotFindAnySchoolsByCity3() {
         // when
-        List<School> dbSchoolsList = underTest.findByLocationsCity("city3");
+        List<School> dbSchoolsList = underTest.findAllByLocationsCity("city3");
 
         // then
         assertThat(dbSchoolsList.size()).isEqualTo(0);

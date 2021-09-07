@@ -3,13 +3,14 @@ package com.agatah.dogtalk.service;
 import com.agatah.dogtalk.dto.*;
 import com.agatah.dogtalk.dto.mappers.ContactMapper;
 import com.agatah.dogtalk.dto.mappers.SchoolMapper;
-import com.agatah.dogtalk.dto.mappers.UserMapper;
 import com.agatah.dogtalk.model.*;
 
-import com.agatah.dogtalk.model.enums.PrivilegeType;
 import com.agatah.dogtalk.repository.ContactRepository;
 import com.agatah.dogtalk.repository.SchoolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,16 +22,11 @@ import java.util.stream.Collectors;
 public class SchoolService {
 
     private SchoolRepository schoolRepository;
-    private BehavioristService behavioristService;
-    private ContactRepository contactRepository;
     private PhotoService photoService;
 
     @Autowired
-    public SchoolService(SchoolRepository schoolRepository, BehavioristService behavioristService,
-                         ContactRepository contactRepository, PhotoService photoService){
+    public SchoolService(SchoolRepository schoolRepository, PhotoService photoService){
         this.schoolRepository = schoolRepository;
-        this.behavioristService = behavioristService;
-        this.contactRepository = contactRepository;
         this.photoService = photoService;
     }
 
@@ -42,28 +38,20 @@ public class SchoolService {
         return null;
     }
 
-    public List<SchoolShortDto> getAllSchoolShortsByCity(String city){
-        return schoolRepository.findByLocationsCity(city)
-                .stream()
-                .map(SchoolMapper::toSchoolShortDto)
-                .collect(Collectors.toList());
+    public Page<SchoolShortDto> getAllSchoolShortsByCity(String city, int page){
+        return schoolRepository.findByLocationsCity(city, PageRequest.of(page, 5)).map(SchoolMapper::toSchoolShortDto);
     }
 
-    public List<SchoolShortDto> getAllSchoolShorts(){
-        return schoolRepository.findAll()
-                .stream()
-                .map(SchoolMapper::toSchoolShortDto)
-                .collect(Collectors.toList());
+    public Page<SchoolShortDto> getAllSchoolShorts(int page){
+        return schoolRepository.findAll(PageRequest.of(page, 5)).map(SchoolMapper::toSchoolShortDto);
     }
 
     @Transactional
-    public void deleteSchoolIfNoneBehavioristHasPrivilegeAll(Long schoolId){
+    public void deleteSchoolIfNoneBehavioristHasPrivilegeManage(Long schoolId){
         Optional<School> schoolOpt = schoolRepository.findById(schoolId);
         if(schoolOpt.isPresent()){
-            List<Privilege> privileges = schoolOpt.get().getPrivileges();
-            System.out.println("AAAAAAAAAAAAA");
-            if(privileges.stream().noneMatch(s -> s.getPrivilegeType().equals(PrivilegeType.ALL))){
-                System.out.println("NONE MATCH");
+            List<BehavioristPrivilegesInSchool> behavioristPrivilegesInSchools = schoolOpt.get().getBehavioristPrivilegesInSchools();
+            if(behavioristPrivilegesInSchools.stream().noneMatch(BehavioristPrivilegesInSchool::hasPrivilegeManage)){
                 schoolRepository.deleteById(schoolId);
             }
         }
@@ -129,18 +117,10 @@ public class SchoolService {
         return null;
     }
 
-//    public void deleteSchoolById(Long id){
-//        School school = schoolRepository.findById(id).get();
-//        for(Privilege privilege: new ArrayList<>(school.getPrivileges())){
-//            privilege.removeSchool(school);
-//        }
-//        schoolRepository.delete(school);
-//    }
+    public void deleteSchoolById(Long id){
+        schoolRepository.deleteById(id);
+    }
 
-//    public void createSchool(School school){
-//        for(BehavioristProfile behaviorist: new ArrayList<>(school.getBehavioristProfiles())){
-//            behavioristService.updateBehaviorist(behaviorist);
-//        }
-//    }
+
 
 }

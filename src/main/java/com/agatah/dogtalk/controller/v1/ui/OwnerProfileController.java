@@ -30,13 +30,15 @@ public class OwnerProfileController {
     @GetMapping("/owner")
     public String showPetOwnerTab(Model model, Authentication authentication){
         UserDetailsDto userDetails = (UserDetailsDto) authentication.getPrincipal();
-        model.addAttribute("owner", ownerService.getOwnerByUserId(userDetails.getUserId()));
+        model.addAttribute("owner", ownerService.getOwnerById(userDetails.getUserId()));
+        model.addAttribute("petForm", new PetProfileDto());
         return "dashboard/pet-owner-tab";
     }
 
     @PostMapping("/owner/pet")
-    public String createPetProfile(@ModelAttribute("owner")OwnerProfileDto owner){
-        petService.createPetProfile(owner.getOwnerId());
+    public String createPetProfile(@ModelAttribute("owner")OwnerProfileDto owner,
+                                   @ModelAttribute("petForm") PetProfileDto petProfileDto){
+        petService.createPetProfile(owner.getOwnerId(), petProfileDto);
         return "redirect:/user/owner";
     }
 

@@ -7,5 +7,4 @@ import java.util.Optional;
 
 public interface OwnerProfileRepository extends JpaRepository<PetOwnerProfile, Long> {
 
-    Optional<PetOwnerProfile> findOwnerProfileByUser_Id(Long userId);
 }

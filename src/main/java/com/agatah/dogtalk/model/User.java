@@ -8,8 +8,6 @@ import lombok.experimental.Accessors;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Objects;
 
 @Entity
@@ -43,30 +41,8 @@ public class User {
     @JoinColumn(name = "photo_id")
     private Photo photo;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private BehavioristProfile behavioristProfile;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private PetOwnerProfile petOwnerProfile;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-            joinColumns = {@JoinColumn(name = "user_id")},
-            inverseJoinColumns = {@JoinColumn(name = "role_id")})
-    private Collection<Role> roles = new ArrayList<>();
-
-
-    public User setBehavioristProfile(BehavioristProfile behavioristProfile) {
-        this.behavioristProfile = behavioristProfile;
-        behavioristProfile.setUser(this);
-        return this;
-    }
-
-    public User setPetOwnerProfile(PetOwnerProfile petOwnerProfile) {
-        this.petOwnerProfile = petOwnerProfile;
-        petOwnerProfile.setUser(this);
-        return this;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Role role;
 
 
     //EqualsAndHashCode

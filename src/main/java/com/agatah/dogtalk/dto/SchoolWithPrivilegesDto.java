@@ -4,13 +4,14 @@ import com.agatah.dogtalk.model.enums.PrivilegeType;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-@Accessors(chain = true)
-@Data
-public class PrivilegeDto {
+import java.util.ArrayList;
+import java.util.List;
 
-    private Long privilegeId;
-    private Long behavioristId;
-    private PrivilegeType privilegeType;
+@Data
+@Accessors(chain = true)
+public class SchoolWithPrivilegesDto {
+
+    private List<PrivilegeType> privileges = new ArrayList<>();
     private String schoolName;
     private Long schoolId;
 }

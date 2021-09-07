@@ -1,16 +1,15 @@
 package com.agatah.dogtalk.integration;
 
 import com.agatah.dogtalk.dto.BehavioristFullProfileDto;
-import com.agatah.dogtalk.model.BehavioristProfile;
-import com.agatah.dogtalk.model.School;
-import com.agatah.dogtalk.model.User;
+import com.agatah.dogtalk.dto.SchoolForm;
+import com.agatah.dogtalk.dto.UserDto;
+import com.agatah.dogtalk.model.Privilege;
 import com.agatah.dogtalk.model.enums.PrivilegeType;
-import com.agatah.dogtalk.repository.BehavioristProfileRepository;
-import com.agatah.dogtalk.repository.PrivilegeRepository;
-import com.agatah.dogtalk.repository.SchoolRepository;
-import com.agatah.dogtalk.repository.UserRepository;
+import com.agatah.dogtalk.model.enums.RoleType;
+import com.agatah.dogtalk.repository.*;
 import com.agatah.dogtalk.service.BehavioristService;
 import com.agatah.dogtalk.service.SchoolService;
+import com.agatah.dogtalk.service.UserService;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +20,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import java.util.List;
+import java.util.Arrays;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -30,32 +29,31 @@ public class BehavioristServiceIntegrationTest {
     @Autowired private BehavioristProfileRepository behavioristProfileRepository;
     @Autowired private SchoolRepository schoolRepository;
     @Autowired private UserRepository userRepository;
-    @Autowired private PrivilegeRepository privilegeRepository;
+    @Autowired private BehavioristPrivilegesInSchoolRepository behavioristPrivilegesInSchoolRepository;
     @Autowired private BehavioristService behavioristService;
     @Autowired private SchoolService schoolService;
     @Autowired private EntityManager em;
+    @Autowired private UserService userService;
 
-    private User dbUser1;
-    private User dbUser2;
+    private UserDto userDto1;
+    private UserDto userDto2;
 
     @BeforeEach
     void setUp() {
-        User user1 = new User()
+        userDto1 = userService.createNewUser(new UserDto()
                 .setFirstName("firstName")
-                .setEmail("email")
                 .setLastName("lastName")
+                .setEmail("email1")
                 .setPassword("password")
-                .setBehavioristProfile(new BehavioristProfile());
+                .setRole(RoleType.ROLE_BEHAVIORIST));
 
-        User user2 = new User()
+        userDto2 = userService.createNewUser(new UserDto()
                 .setFirstName("firstName")
+                .setLastName("lastName")
                 .setEmail("email2")
-                .setLastName("lastName")
                 .setPassword("password")
-                .setBehavioristProfile(new BehavioristProfile());
+                .setRole(RoleType.ROLE_BEHAVIORIST));
 
-        dbUser1 = userRepository.save(user1);
-        dbUser2 = userRepository.save(user2);
     }
 
     @AfterEach
@@ -63,29 +61,29 @@ public class BehavioristServiceIntegrationTest {
         userRepository.deleteAll();
         behavioristProfileRepository.deleteAll();
         schoolRepository.deleteAll();
-        privilegeRepository.deleteAll();
+        behavioristPrivilegesInSchoolRepository.deleteAll();
     }
 
     @Test
     @Transactional
     void itShouldAddNewSchoolWithDefaultPrivilege() {
         // when
-        behavioristService.createBehavioristSchool(dbUser1.getBehavioristProfile().getId(), "name");
+        behavioristService.createBehavioristSchool(userDto1.getId(), new SchoolForm().setFormSchoolName("name"));
 
         // then
         SoftAssertions softly = new SoftAssertions();
         softly.assertThat(schoolRepository.count())
                 .as("number of schools in repo")
                 .isEqualTo(1);
-        softly.assertThat(schoolRepository.findAll().get(0).getPrivileges().size())
+        softly.assertThat(schoolRepository.findAll().get(0).getBehavioristPrivilegesInSchools().size())
                 .as("number of privileges in school")
                 .isEqualTo(1);
-        softly.assertThat(behavioristProfileRepository.findAll().get(0).getPrivileges().size())
+        softly.assertThat(behavioristProfileRepository.findAll().get(0).getBehavioristPrivilegesInSchools().size())
                 .as("number of privileges in behaviorist")
                 .isEqualTo(1);
-        softly.assertThat(behavioristProfileRepository.findAll().get(0).getPrivileges().get(0).getPrivilegeType())
+        softly.assertThat(behavioristProfileRepository.findAll().get(0).getBehavioristPrivilegesInSchools().get(0).getPrivileges().get(0).getPrivilegeType())
                 .as("privilege type")
-                .isEqualTo(PrivilegeType.ALL);
+                .isEqualTo(PrivilegeType.MANAGE);
         softly.assertAll();
     }
 
@@ -94,39 +92,41 @@ public class BehavioristServiceIntegrationTest {
     void itShouldAddBehavioristToExistingSchool() {
         // given
         BehavioristFullProfileDto behavioristDto1 = behavioristService
-                .createBehavioristSchool(dbUser1.getBehavioristProfile().getId(), "name");
+                .createBehavioristSchool(userDto1.getId(), new SchoolForm().setFormSchoolName("name"));
 
         // when
         BehavioristFullProfileDto behavioristDto2 = behavioristService
-                .addBehavioristToSchool(dbUser2.getBehavioristProfile().getId(),
-                        behavioristDto1.getSchools().get(0).getId(), PrivilegeType.WRITE_MESSAGES);
+                .addBehavioristToSchool(userDto2.getId(),
+                        behavioristDto1.getSchoolWithPrivilegesList().get(0).getSchoolId(), Arrays.asList(new Privilege().setPrivilegeType(PrivilegeType.RESPOND)));
 
         // then
         SoftAssertions softly = new SoftAssertions();
         softly.assertThat(behavioristProfileRepository.count())
                 .as("behaviorist in repo")
                 .isEqualTo(2);
-        softly.assertThat(privilegeRepository.count())
+        softly.assertThat(behavioristPrivilegesInSchoolRepository.count())
                 .as("privileges in repo")
                 .isEqualTo(2);
         softly.assertThat(schoolRepository.count())
                 .as("schools in repo")
                 .isEqualTo(1);
-        softly.assertThat(schoolRepository.findAll().get(0).getPrivileges().size())
+        softly.assertThat(schoolRepository.findAll().get(0).getBehavioristPrivilegesInSchools().size())
                 .as("privileges in school")
                 .isEqualTo(2);
         softly.assertAll();
     }
 
     @Test
+    @Transactional
     void itShouldDeleteBehavioristAndSchool() {
         // given
         BehavioristFullProfileDto behavioristDto1 = behavioristService
-                .createBehavioristSchool(dbUser1.getBehavioristProfile().getId(), "name");
+                .createBehavioristSchool(userDto1.getId(), new SchoolForm().setFormSchoolName("name"));
+        em.flush();
 
         // when
-        userRepository.deleteById(dbUser1.getId());
-        schoolService.deleteSchoolIfNoneBehavioristHasPrivilegeAll(behavioristDto1.getSchools().get(0).getId());
+        behavioristProfileRepository.deleteById(userDto1.getId());
+        schoolService.deleteSchoolIfNoneBehavioristHasPrivilegeManage(behavioristDto1.getSchoolWithPrivilegesList().get(0).getSchoolId());
 
         // then
         SoftAssertions softly = new SoftAssertions();
@@ -136,12 +136,12 @@ public class BehavioristServiceIntegrationTest {
         softly.assertThat(schoolRepository.count())
                 .as("schools in repo")
                 .isEqualTo(0);
-        softly.assertThat(privilegeRepository.count())
+        softly.assertThat(behavioristPrivilegesInSchoolRepository.count())
                 .as("privilege in repo")
                 .isEqualTo(0);
         softly.assertThat(userRepository.count())
                 .as("users in repo")
-                .isEqualTo(1);
+                .isEqualTo(2);
         softly.assertAll();
     }
 
@@ -150,29 +150,29 @@ public class BehavioristServiceIntegrationTest {
     void itShouldDeleteOneBehavioristButNotSchool() {
         // given
         BehavioristFullProfileDto behavioristDto1 = behavioristService
-                .createBehavioristSchool(dbUser1.getBehavioristProfile().getId(), "name");
+                .createBehavioristSchool(userDto1.getId(), new SchoolForm().setFormSchoolName("name"));
 
         BehavioristFullProfileDto behavioristDto2 = behavioristService
-                .addBehavioristToSchool(dbUser2.getBehavioristProfile().getId(),
-                        behavioristDto1.getSchools().get(0).getId(), PrivilegeType.WRITE_MESSAGES);
+                .addBehavioristToSchool(userDto2.getId(),
+                        behavioristDto1.getSchoolWithPrivilegesList().get(0).getSchoolId(), Arrays.asList(new Privilege().setPrivilegeType(PrivilegeType.RESPOND)));
         em.flush();
 
         // when
-        userRepository.deleteById(dbUser2.getId());
-        schoolService.deleteSchoolIfNoneBehavioristHasPrivilegeAll(behavioristDto1.getSchools().get(0).getId());
+        behavioristProfileRepository.deleteById(userDto2.getId());
+        schoolService.deleteSchoolIfNoneBehavioristHasPrivilegeManage(behavioristDto1.getSchoolWithPrivilegesList().get(0).getSchoolId());
 
         // then
         SoftAssertions softly = new SoftAssertions();
         softly.assertThat(behavioristProfileRepository.count())
                 .as("behaviorist in repo")
                 .isEqualTo(1);
-        softly.assertThat(privilegeRepository.count())
+        softly.assertThat(behavioristPrivilegesInSchoolRepository.count())
                 .as("privileges in repo")
                 .isEqualTo(1);
         softly.assertThat(schoolRepository.count())
                 .as("schools in repo")
                 .isEqualTo(1);
-        softly.assertThat(schoolRepository.findAll().get(0).getPrivileges().size())
+        softly.assertThat(schoolRepository.findAll().get(0).getBehavioristPrivilegesInSchools().size())
                 .as("privileges in school")
                 .isEqualTo(1);
         softly.assertAll();
@@ -183,29 +183,29 @@ public class BehavioristServiceIntegrationTest {
     void itShouldDeleteOneBehavioristAndSchool() {
         // given
         BehavioristFullProfileDto behavioristDto1 = behavioristService
-                .createBehavioristSchool(dbUser1.getBehavioristProfile().getId(), "name");
+                .createBehavioristSchool(userDto1.getId(), new SchoolForm().setFormSchoolName("name"));
 
         BehavioristFullProfileDto behavioristDto2 = behavioristService
-                .addBehavioristToSchool(dbUser2.getBehavioristProfile().getId(),
-                        behavioristDto1.getSchools().get(0).getId(), PrivilegeType.WRITE_MESSAGES);
+                .addBehavioristToSchool(userDto2.getId(),
+                        behavioristDto1.getSchoolWithPrivilegesList().get(0).getSchoolId(), Arrays.asList(new Privilege().setPrivilegeType(PrivilegeType.RESPOND)));
         em.flush();
 
         // when
-        userRepository.deleteById(dbUser1.getId());
-        schoolService.deleteSchoolIfNoneBehavioristHasPrivilegeAll(behavioristDto1.getSchools().get(0).getId());
+        behavioristProfileRepository.deleteById(userDto1.getId());
+        schoolService.deleteSchoolIfNoneBehavioristHasPrivilegeManage(behavioristDto1.getSchoolWithPrivilegesList().get(0).getSchoolId());
 
         // then
         SoftAssertions softly = new SoftAssertions();
         softly.assertThat(behavioristProfileRepository.count())
                 .as("behaviorist in repo")
                 .isEqualTo(1);
-        softly.assertThat(privilegeRepository.count())
+        softly.assertThat(behavioristPrivilegesInSchoolRepository.count())
                 .as("privileges in repo")
                 .isEqualTo(0);
         softly.assertThat(schoolRepository.count())
                 .as("schools in repo")
                 .isEqualTo(0);
-        softly.assertThat(behavioristProfileRepository.findAll().get(0).getPrivileges().size())
+        softly.assertThat(behavioristProfileRepository.findAll().get(0).getBehavioristPrivilegesInSchools().size())
                 .as("privileges in survived behaviorist")
                 .isEqualTo(0);
         softly.assertAll();
@@ -215,33 +215,97 @@ public class BehavioristServiceIntegrationTest {
     @Transactional
     void itShouldDeleteSchoolButNotBehaviorists() {
         BehavioristFullProfileDto behavioristDto1 = behavioristService
-                .createBehavioristSchool(dbUser1.getBehavioristProfile().getId(), "name");
+                .createBehavioristSchool(userDto1.getId(), new SchoolForm().setFormSchoolName("name"));
 
         BehavioristFullProfileDto behavioristDto2 = behavioristService
-                .addBehavioristToSchool(dbUser2.getBehavioristProfile().getId(),
-                        behavioristDto1.getSchools().get(0).getId(), PrivilegeType.WRITE_MESSAGES);
+                .addBehavioristToSchool(userDto2.getId(),
+                        behavioristDto1.getSchoolWithPrivilegesList().get(0).getSchoolId(), Arrays.asList(new Privilege().setPrivilegeType(PrivilegeType.RESPOND)));
         em.flush();
 
         // when
-        schoolRepository.deleteById(behavioristDto1.getSchools().get(0).getId());
+        schoolService.deleteSchoolById(behavioristDto1.getSchoolWithPrivilegesList().get(0).getSchoolId());
 
         // then
         SoftAssertions softly = new SoftAssertions();
         softly.assertThat(behavioristProfileRepository.count())
                 .as("behaviorist in repo")
                 .isEqualTo(2);
-        softly.assertThat(privilegeRepository.count())
+        softly.assertThat(behavioristPrivilegesInSchoolRepository.count())
                 .as("privileges in repo")
                 .isEqualTo(0);
         softly.assertThat(schoolRepository.count())
                 .as("schools in repo")
                 .isEqualTo(0);
-        softly.assertThat(behavioristProfileRepository.findAll().get(0).getPrivileges().size())
+        softly.assertThat(behavioristProfileRepository.findAll().get(0).getBehavioristPrivilegesInSchools().size())
                 .as("privileges in survived behaviorist1")
                 .isEqualTo(0);
-        softly.assertThat(behavioristProfileRepository.findAll().get(1).getPrivileges().size())
+        softly.assertThat(behavioristProfileRepository.findAll().get(1).getBehavioristPrivilegesInSchools().size())
                 .as("privileges in survived behaviorist2")
                 .isEqualTo(0);
+        softly.assertAll();
+    }
+
+    @Test
+    @Transactional
+    void itShouldRemoveBehavioristFromSchoolButNotDeleteIt() {
+        // given
+        BehavioristFullProfileDto behavioristDto1 = behavioristService
+                .createBehavioristSchool(userDto1.getId(), new SchoolForm().setFormSchoolName("name"));
+
+        BehavioristFullProfileDto behavioristDto2 = behavioristService
+                .addBehavioristToSchool(userDto2.getId(),
+                        behavioristDto1.getSchoolWithPrivilegesList().get(0).getSchoolId(), Arrays.asList(new Privilege().setPrivilegeType(PrivilegeType.RESPOND)));
+        em.flush();
+
+        // when
+        behavioristService.leaveSchool(behavioristDto2.getId(), behavioristDto2.getSchoolWithPrivilegesList().get(0).getSchoolId());
+
+        // then
+        SoftAssertions softly = new SoftAssertions();
+        softly.assertThat(behavioristProfileRepository.count())
+                .as("behaviorist in repo")
+                .isEqualTo(2);
+        softly.assertThat(behavioristPrivilegesInSchoolRepository.count())
+                .as("privileges in repo")
+                .isEqualTo(1);
+        softly.assertThat(schoolRepository.count())
+                .as("schools in repo")
+                .isEqualTo(1);
+        softly.assertThat(schoolRepository.findAll().get(0).getBehavioristPrivilegesInSchools().size())
+                .as("privileges in school")
+                .isEqualTo(1);
+        softly.assertAll();
+    }
+
+    @Test
+    @Transactional
+    void itShouldRemoveBehavioristFromSchoolAndDeleteIt() {
+        // given
+        BehavioristFullProfileDto behavioristDto1 = behavioristService
+                .createBehavioristSchool(userDto1.getId(), new SchoolForm().setFormSchoolName("name"));
+
+        BehavioristFullProfileDto behavioristDto2 = behavioristService
+                .addBehavioristToSchool(userDto2.getId(),
+                        behavioristDto1.getSchoolWithPrivilegesList().get(0).getSchoolId(), Arrays.asList(new Privilege().setPrivilegeType(PrivilegeType.RESPOND)));
+        em.flush();
+
+        // when
+        behavioristService.leaveSchool(behavioristDto1.getId(), behavioristDto1.getSchoolWithPrivilegesList().get(0).getSchoolId());
+
+        // then
+        SoftAssertions softly = new SoftAssertions();
+        softly.assertThat(behavioristProfileRepository.count())
+                .as("behaviorist in repo")
+                .isEqualTo(2);
+        softly.assertThat(behavioristPrivilegesInSchoolRepository.count())
+                .as("privileges in repo")
+                .isEqualTo(0);
+        softly.assertThat(schoolRepository.count())
+                .as("schools in repo")
+                .isEqualTo(0);
+        softly.assertThat(userRepository.count())
+                .as("users in repo")
+                .isEqualTo(2);
         softly.assertAll();
     }
 }

@@ -32,7 +32,7 @@
                     <input class="form-control" type="text" name="email" id="email" th:field="*{email}" placeholder="email">
                     <label for="email">email</label>
                     <span class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
-                    <div th:if="${emailDuplicated != null}">
+                    <div class="mb-3" th:if="${emailDuplicated != null}">
                         <span class="text-danger">this email is already registered</span>
                         <br>
                         <a class="text-decoration-none" th:href="@{/login}">Go to login page</a>

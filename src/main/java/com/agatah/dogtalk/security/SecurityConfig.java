@@ -1,4 +1,4 @@
-package com.agatah.dogtalk.config;
+package com.agatah.dogtalk.security;
 
 import com.agatah.dogtalk.service.UserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .antMatchers("/behaviorist/**", "/search/**","/search*", "/school/**", "/school*", "/school/*", "/school?city=Wrocław", "redirect:/**").authenticated()
+                .antMatchers("/user/school/**").hasRole("BEHAVIORIST")
                 .antMatchers("/", "/login", "/register", "/resources/**").permitAll()
                 .and()
                 .formLogin()

@@ -4,6 +4,8 @@ import com.agatah.dogtalk.model.enums.ContactType;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.AssertTrue;
+
 @Data
 @Accessors(chain = true)
 public class ContactDto {

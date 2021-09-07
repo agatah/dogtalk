@@ -27,7 +27,7 @@ public class School {
     private String name;
 
     @OneToMany(mappedBy = "school", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Privilege> privileges = new ArrayList<>();
+    private List<BehavioristPrivilegesInSchool> behavioristPrivilegesInSchools = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "school", orphanRemoval = true)
     private List<ServiceOffer> serviceOffers = new ArrayList<>();
@@ -47,8 +47,8 @@ public class School {
 
     @PreRemove
     public void preRemove(){
-        for(Privilege privilege: new ArrayList<>(privileges)){
-            privilege.getBehaviorist().removeSchoolWithPrivilege(this);
+        for(BehavioristPrivilegesInSchool behavioristPrivilegesInSchool : new ArrayList<>(behavioristPrivilegesInSchools)){
+            behavioristPrivilegesInSchool.getBehaviorist().removeSchoolWithPrivilege(this);
         }
     }
 
@@ -76,8 +76,8 @@ public class School {
         return this;
     }
 
-    public School addPrivilege(Privilege privilege){
-        privileges.add(privilege);
+    public School addPrivilege(BehavioristPrivilegesInSchool behavioristPrivilegesInSchool){
+        behavioristPrivilegesInSchools.add(behavioristPrivilegesInSchool);
         return this;
     }
 

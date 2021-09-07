@@ -41,12 +41,9 @@ public class RegisterController {
         if(errors.hasErrors()){
             user.setPassword("");
             model.addAttribute("registerForm", user);
-            return "register";
-
-        } else if(userService.isEmailAlreadyRegistered(user)){
-            user.setPassword("");
-            model.addAttribute("registerForm", user);
-            model.addAttribute("emailDuplicated", "this email is already registered");
+            if(userService.isEmailAlreadyRegistered(user)){
+                model.addAttribute("emailDuplicated", "this email is already registered");
+            }
             return "register";
         }
         userService.createNewUser(user);

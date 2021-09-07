@@ -7,6 +7,4 @@ import java.util.Optional;
 
 public interface BehavioristProfileRepository extends JpaRepository<BehavioristProfile, Long> {
 
-    Optional<BehavioristProfile> findBehavioristProfileByUser_Id(Long id);
-
 }

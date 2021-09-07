@@ -5,25 +5,26 @@ import com.agatah.dogtalk.dto.mappers.UserMapper;
 import com.agatah.dogtalk.model.Photo;
 import com.agatah.dogtalk.model.Role;
 import com.agatah.dogtalk.model.User;
+import com.agatah.dogtalk.model.enums.RoleType;
 import com.agatah.dogtalk.repository.RoleRepository;
 import com.agatah.dogtalk.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.Optional;
 
 @Service
 public class UserService {
 
-    private UserRepository userRepository;
-    private RoleRepository roleRepository;
-    private BehavioristService behavioristService;
-    private OwnerService ownerService;
-    private PhotoService  photoService;
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final BehavioristService behavioristService;
+    private final OwnerService ownerService;
+    private final PhotoService  photoService;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserService(UserRepository userRepository, RoleRepository roleRepository,
@@ -48,16 +49,16 @@ public class UserService {
                 .setEmail(userDto.getEmail())
                 .setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-        Optional<Role> roleOpt = roleRepository.findByName(userDto.getRole());
+        Optional<Role> roleOpt = roleRepository.findByRoleType(userDto.getRole());
         if(roleOpt.isEmpty()){
             return null; //THROW ROLE NOT FOUND TODO
         }
-        user.setRoles(Arrays.asList(roleOpt.get()));
+        user.setRole(roleOpt.get());
         User dbUser = userRepository.save(user);
 
-        if(roleOpt.get().getName().equals("ROLE_BEHAVIORIST")){
+        if(roleOpt.get().getRoleType().equals(RoleType.ROLE_BEHAVIORIST)){
             behavioristService.createBehavioristProfile(dbUser);
-        } else if(roleOpt.get().getName().equals("ROLE_PET_OWNER")){
+        } else if(roleOpt.get().getRoleType().equals(RoleType.ROLE_PET_OWNER)){
             ownerService.createOwnerProfile(dbUser);
         }
 
@@ -95,5 +96,18 @@ public class UserService {
             return UserMapper.toUserDto(userRepository.save(userOpt.get().setPhoto(photoService.uploadPhoto(photo))));
         }
         return null;
+    }
+
+    @Transactional
+    public void deleteUserById(Long userId){
+        Optional<User> userOpt = userRepository.findById(userId);
+        if(userOpt.isPresent()){
+            if(userOpt.get().getRole().getRoleType().equals(RoleType.ROLE_BEHAVIORIST)){
+                behavioristService.deleteById(userId);
+            } else if (userOpt.get().getRole().getRoleType().equals(RoleType.ROLE_PET_OWNER)){
+                ownerService.deleteById(userId);
+            }
+            userRepository.deleteById(userId);
+        }
     }
 }

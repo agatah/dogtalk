@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:replace="~{layout/layout::layout(~{::title}, ~{::content})}">
+<html th:replace="~{layout/layout::layout(~{::title}, ~{::content})}" lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
 
   <title>DogTalk - portal for dog owners and behaviorists</title>
@@ -8,12 +8,48 @@
 <body>
 
 <div th:fragment="content" class="container text-center my-3">
-  <h2>Find behaviorist's school in your city:</h2>
-  <form method="post" th:action="@{/search}" th:object="${location}" class="my-3">
-    <input type="text" name="city" id="city">
-    <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
-    <input class="btn btn-secondary" type="submit" value="Search">
-  </form>
+
+    <!--  PAGE INFO-->
+    <div class="d-flex flex-row align-items-center justify-content-center my-3" th:if="${schoolPage != null}">
+      <div class="text-end mx-2" style="width: 50px;">
+        <a class="btn btn-outline-primary btn-sm"
+           th:if="${schoolPage.hasPrevious()} and ${location != null}"
+           th:href="@{/search/school?city={city}&page={page}(city=${location.city}, page=${schoolPage.getNumber()-1})}">&lt;</a>
+        <a class="btn btn-outline-primary btn-sm"
+           th:if="${schoolPage.hasPrevious()} and ${location == null}"
+           th:href="@{/search/school?page={page}(page=${schoolPage.getNumber()-1})}">&lt;</a>
+      </div>
+      <div class="d-flex flex-row align-items-center justify-content-center">
+        <p class="text-center margin-block-auto"
+           th:text="${schoolPage.getTotalElements() == 1}? ${schoolPage.getTotalElements()} + ' record found' : ${schoolPage.getTotalElements()} + ' records found'"></p>
+        <div class="d-flex flex-row" th:if="${schoolPage.getTotalPages() > 0}">
+          <p class="text-center margin-block-auto" th:text="', page ' + ${schoolPage.getNumber() + 1}"></p>
+          <p class="text-center mx-1 margin-block-auto" th:text="' of ' + ${schoolPage.getTotalPages()}"></p>
+        </div>
+      </div>
+      <div class="text-start mx-1" style="width: 50px;">
+        <a class="btn btn-outline-primary btn-sm"
+           th:if="${schoolPage.hasNext()} and ${location != null}"
+           th:href="@{/search/school?city={city}&page={page}(city=${location.city}, page=${schoolPage.getNumber()+1})}">&gt;</a>
+        <a class="btn btn-outline-primary btn-sm"
+           th:if="${schoolPage.hasNext()} and ${location == null}"
+           th:href="@{/search/school?page={page}(page=${schoolPage.getNumber()+1})}">&gt;</a>
+      </div>
+    </div>
+
+    <!--  PAGE CONTENT-->
+    <div class="container-fluid" th:if="${schoolPage != null}">
+      <div class="list-group" th:each="school: ${schoolPage.getContent()}">
+        <a class="list-group-item list-group-item-action text-start" th:href="@{/school/{id}(id=${school.id})}">
+          <p class="text-break" th:text="${school.name}"></p>
+          <div>
+            <span class="school-city" th:each="location: ${school.locations}" th:text="${location.city}"></span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+
 
 
 <!--  Custom scripts-->
@@ -26,7 +62,6 @@
       $("#city").autocomplete({
         source: "/api/locations",
         minLength: 1,
-
       });
     });
 

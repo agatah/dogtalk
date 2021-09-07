@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link th:rel="stylesheet" th:href="@{/webjars/bootstrap/5.0.0/css/bootstrap.min.css} "/>
+  <link th:rel="stylesheet" th:href="@{/styles/custom.css}">
+  <link rel="icon" type="image/png" th:href="@{/favicon.png}">
+  <title>Internal server error</title>
+</head>
+<body>
+<div class="container text-center mt-5">
+  <h1 class="error-code">500</h1>
+  <h1 class="mb-5">Internal server error</h1>
+  <a class="text-decoration-none" th:href="@{/}">Return to home page</a>
+</div>
+</body>
+</html>

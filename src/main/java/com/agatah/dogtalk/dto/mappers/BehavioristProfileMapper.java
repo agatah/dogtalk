@@ -3,7 +3,6 @@ package com.agatah.dogtalk.dto.mappers;
 import com.agatah.dogtalk.dto.BehavioristFullProfileDto;
 import com.agatah.dogtalk.dto.BehavioristShortProfileDto;
 import com.agatah.dogtalk.model.BehavioristProfile;
-import com.agatah.dogtalk.model.Privilege;
 
 import java.util.stream.Collectors;
 
@@ -18,22 +17,15 @@ public class BehavioristProfileMapper {
                         .collect(Collectors.toList()))
                 .setAbout(behaviorist.getAbout())
                 .setQualifications(behaviorist.getQualifications())
-                .setSchools(behaviorist.getPrivileges()
-                        .stream()
-                        .map(Privilege::getSchool)
-                        .map(SchoolMapper::toSchoolShortDto)
-                        .collect(Collectors.toList()))
-                .setUserId(behaviorist.getUser().getId())
                 .setFirstName(behaviorist.getUser().getFirstName())
                 .setLastName(behaviorist.getUser().getLastName())
-                .setPrivileges(behaviorist.getPrivileges()
+                .setSchoolWithPrivilegesList(behaviorist.getBehavioristPrivilegesInSchools()
                         .stream()
-                        .map(PrivilegeMapper::toPrivilegeDto)
+                        .filter(s -> !s.hasPrivilegeJoinRequest())
+                        .map(PrivilegeMapper::toSchoolWithPrivilegesDto)
                         .collect(Collectors.toList()));
 
-        if(behaviorist.getUser().getPetOwnerProfile() != null){
-            profileDto.setOwnerId(behaviorist.getUser().getPetOwnerProfile().getId());
-        }
+
         if(behaviorist.getUser().getPhoto() != null){
             profileDto.setPhotoId(behaviorist.getUser().getPhoto().getId());
         }

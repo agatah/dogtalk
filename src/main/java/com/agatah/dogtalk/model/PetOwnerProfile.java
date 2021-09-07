@@ -22,12 +22,10 @@ import java.util.Objects;
 public class PetOwnerProfile{
 
     @Id
-    @SequenceGenerator(name = "owner_sequence", sequenceName = "owner_sequence", allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "owner_sequence")
     private Long id;
 
-    @OneToOne()
-    @JoinColumn(name = "user_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
     private User user;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "owner")

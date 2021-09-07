@@ -1,11 +1,14 @@
 package com.agatah.dogtalk.repository;
 
+import com.agatah.dogtalk.model.Role;
 import com.agatah.dogtalk.model.User;
+import com.agatah.dogtalk.model.enums.RoleType;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -16,14 +19,17 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 class UserRepositoryTest {
 
     @Autowired private UserRepository underTest;
+    @Autowired private RoleRepository roleRepository;
 
     @BeforeAll
     void beforeAll() {
+        Role role = roleRepository.save(new Role().setRoleType(RoleType.ROLE_BEHAVIORIST));
         User user = new User()
                 .setFirstName("firstName")
                 .setEmail("email")
                 .setLastName("lastName")
-                .setPassword("password");
+                .setPassword("password")
+                .setRole(role);
         underTest.save(user);
     }
 

@@ -9,13 +9,15 @@ import java.util.stream.Collectors;
 public class PetProfileMapper {
 
     public static PetProfileDto toPetProfileDto(Pet pet){
-        return new PetProfileDto()
+        PetProfileDto petProfileDto = new PetProfileDto()
                 .setPetId(pet.getId())
                 .setOwnerId(pet.getOwner().getId())
-                .setName(pet.getName())
-                .setPhotoIds(pet.getPhotos()
-                        .stream()
-                        .map(Photo::getId)
-                        .collect(Collectors.toList()));
+                .setPetName(pet.getName())
+                .setAge(pet.getAge())
+                .setBreed(pet.getBreed());
+        if(pet.getPhoto() != null){
+            petProfileDto.setPhotoId(pet.getPhoto().getId());
+        }
+        return petProfileDto;
     }
 }

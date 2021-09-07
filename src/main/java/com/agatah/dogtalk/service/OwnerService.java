@@ -1,12 +1,11 @@
 package com.agatah.dogtalk.service;
 
 import com.agatah.dogtalk.dto.OwnerProfileDto;
-import com.agatah.dogtalk.dto.PetProfileDto;
 import com.agatah.dogtalk.dto.mappers.OwnerProfileMapper;
 import com.agatah.dogtalk.model.PetOwnerProfile;
 import com.agatah.dogtalk.model.User;
 import com.agatah.dogtalk.repository.OwnerProfileRepository;
-import com.agatah.dogtalk.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,15 +14,14 @@ import java.util.Optional;
 public class OwnerService {
 
     private final OwnerProfileRepository ownerProfileRepository;
-    private final UserRepository userRepository;
 
-    public OwnerService(OwnerProfileRepository ownerProfileRepository, UserRepository userRepository){
+    @Autowired
+    public OwnerService(OwnerProfileRepository ownerProfileRepository){
         this.ownerProfileRepository = ownerProfileRepository;
-        this.userRepository = userRepository;
     }
 
-    public OwnerProfileDto getOwnerByUserId(Long userId){
-        Optional<PetOwnerProfile> ownerProfileOpt = ownerProfileRepository.findOwnerProfileByUser_Id(userId);
+    public OwnerProfileDto getOwnerById(Long id){
+        Optional<PetOwnerProfile> ownerProfileOpt = ownerProfileRepository.findById(id);
         if(ownerProfileOpt.isPresent()){
             return OwnerProfileMapper.toOwnerProfileDto(ownerProfileOpt.get());
         }
@@ -34,6 +32,13 @@ public class OwnerService {
         PetOwnerProfile petOwnerProfile = new PetOwnerProfile()
                 .setUser(user);
         return OwnerProfileMapper.toOwnerProfileDto(ownerProfileRepository.save(petOwnerProfile));
+    }
+
+    public void deleteById(Long userId){
+        Optional<PetOwnerProfile> petOwnerProfileOpt = ownerProfileRepository.findById(userId);
+        if(petOwnerProfileOpt.isPresent()){
+            ownerProfileRepository.deleteById(userId);
+        }
     }
 
 }

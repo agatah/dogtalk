@@ -1,5 +1,5 @@
 package com.agatah.dogtalk.model.enums;
 
 public enum PrivilegeType {
-    ALL, EDIT, WRITE_MESSAGES;
+    MANAGE, EDIT, RESPOND, JOIN_REQUEST;
 }

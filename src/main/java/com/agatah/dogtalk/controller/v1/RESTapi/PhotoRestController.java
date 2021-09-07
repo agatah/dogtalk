@@ -11,21 +11,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/image")
-public class PhotoController {
+public class PhotoRestController {
 
     PhotoService photoService;
 
-    public PhotoController(PhotoService photoService){
+    public PhotoRestController(PhotoService photoService){
         this.photoService = photoService;
     }
 
     @GetMapping(value = "/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
     public Resource downloadPhoto(@PathVariable("id") Long id){
         return new ByteArrayResource(photoService.findById(id).getImage());
-    }
-
-    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Integer getNumber(){
-        return 1;
     }
 }

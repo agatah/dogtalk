@@ -1,7 +1,5 @@
 package com.agatah.dogtalk.dto;
 
-import com.agatah.dogtalk.model.Contact;
-import com.agatah.dogtalk.model.School;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -15,13 +13,10 @@ public class BehavioristFullProfileDto {
     private List<ContactDto> contacts;
     private String about;
     private String qualifications;
-    private List<SchoolShortDto> schools;
-    private List<PrivilegeDto> privileges;
-    private Long userId;
+    private List<SchoolWithPrivilegesDto> schoolWithPrivilegesList;
     private String firstName;
     private String lastName;
     private Long photoId;
-    private Long ownerId;
 
     public String getFullName(){
         return firstName + " " + lastName;

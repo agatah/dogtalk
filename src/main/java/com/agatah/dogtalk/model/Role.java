@@ -1,5 +1,6 @@
 package com.agatah.dogtalk.model;
 
+import com.agatah.dogtalk.model.enums.RoleType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,10 +23,12 @@ public class Role implements GrantedAuthority {
     @SequenceGenerator(name = "role_sequence", sequenceName = "role_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "role_sequence")
     private Long id;
-    private String name;
+
+    @Enumerated(EnumType.STRING)
+    private RoleType roleType;
 
     @Override
     public String getAuthority() {
-        return name;
+        return roleType.toString();
     }
 }
