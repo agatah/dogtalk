@@ -92,7 +92,7 @@
         <div class="d-flex flex-column align-items-center mt-3">
             <img th:if="${school.bannerId == null}" class="dashed" th:src="@{/images/user.svg}" alt="banner"
                  width="200px">
-            <img th:if="${school.bannerId != null}" class="solid" th:src="@{'/image/'+${school.bannerId}}" alt="banner"
+            <img th:if="${school.bannerId != null}" class="solid" th:src="@{'/api/image/'+${school.bannerId}}" alt="banner"
                  width="200px">
         </div>
     </div>

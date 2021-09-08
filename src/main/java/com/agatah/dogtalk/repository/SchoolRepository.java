@@ -1,7 +1,5 @@
 package com.agatah.dogtalk.repository;
 
-import com.agatah.dogtalk.model.BehavioristProfile;
-import com.agatah.dogtalk.model.Location;
 import com.agatah.dogtalk.model.School;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

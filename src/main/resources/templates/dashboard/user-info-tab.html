@@ -31,7 +31,7 @@
         <div class="d-flex flex-column align-items-center mt-3">
             <img th:if="${user.photoId == null}" class="dashed" th:src="@{/images/user.svg}" alt="profile picture"
                  width="200px">
-            <img th:if="${user.photoId != null}" class="solid" th:src="@{'/image/'+${user.photoId}}"
+            <img th:if="${user.photoId != null}" class="solid" th:src="@{'/api/image/'+${user.photoId}}"
                  alt="profile picture" width="200px">
         </div>
     </div>

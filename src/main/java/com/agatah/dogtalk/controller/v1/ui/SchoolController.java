@@ -3,12 +3,9 @@ package com.agatah.dogtalk.controller.v1.ui;
 import com.agatah.dogtalk.dto.*;
 import com.agatah.dogtalk.model.Photo;
 import com.agatah.dogtalk.model.Privilege;
-import com.agatah.dogtalk.model.School;
 import com.agatah.dogtalk.model.enums.PrivilegeType;
 import com.agatah.dogtalk.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -21,7 +18,6 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 @SessionAttributes(value = {"privileges", "school"})

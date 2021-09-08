@@ -14,7 +14,7 @@
         <div class="d-flex flex-row align-items-end shadow">
             <img th:if="${behaviorist.getPhotoId() == null}" th:src="@{/images/user.svg}" alt="profile picture"
                  width="120px">
-            <img th:if="${behaviorist.getPhotoId() != null}" th:src="@{'../image/'+${behaviorist.getPhotoId()}}"
+            <img th:if="${behaviorist.getPhotoId() != null}" th:src="@{'../api/image/'+${behaviorist.getPhotoId()}}"
                  alt="profile picture" width="120px">
             <h1 class="pb-2 mx-2" th:text="${behaviorist.getFullName()}"></h1>
         </div>

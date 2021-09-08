@@ -1,6 +1,5 @@
 package com.agatah.dogtalk.model;
 
-import com.agatah.dogtalk.model.enums.PrivilegeType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

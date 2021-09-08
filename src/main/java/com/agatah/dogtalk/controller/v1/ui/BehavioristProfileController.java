@@ -3,16 +3,12 @@ package com.agatah.dogtalk.controller.v1.ui;
 import com.agatah.dogtalk.dto.BehavioristFullProfileDto;
 import com.agatah.dogtalk.dto.ContactDto;
 import com.agatah.dogtalk.dto.UserDetailsDto;
-import com.agatah.dogtalk.model.Privilege;
-import com.agatah.dogtalk.model.enums.PrivilegeType;
 import com.agatah.dogtalk.service.BehavioristService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Arrays;
 
 @Controller
 @SessionAttributes(names = {"behaviorist", "user"})
@@ -28,7 +24,7 @@ public class BehavioristProfileController {
     @GetMapping("/behaviorist/{id}")
     public String  showBehavioristProfile(@PathVariable Long id, Model model){
         model.addAttribute("behaviorist", behavioristService.getBehavioristById(id));
-        return "behaviorist_profile";
+        return "behaviorist-profile";
     }
 
     @GetMapping("/user/behaviorist")
@@ -63,13 +59,8 @@ public class BehavioristProfileController {
     }
 
     @PostMapping("/user/behaviorist/contact")
-    public String createBehavioristContact(@ModelAttribute("contact") ContactDto contact, @ModelAttribute("behaviorist") BehavioristFullProfileDto behaviorist, Model model){
+    public String createBehavioristContact(@ModelAttribute("contact") ContactDto contact, @ModelAttribute("behaviorist") BehavioristFullProfileDto behaviorist){
         behavioristService.addBehavioristContact(behaviorist.getId(), contact);
         return "redirect:/user/behaviorist";
     }
-
-
-
-
-
 }

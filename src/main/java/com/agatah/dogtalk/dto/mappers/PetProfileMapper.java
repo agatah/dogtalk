@@ -2,9 +2,6 @@ package com.agatah.dogtalk.dto.mappers;
 
 import com.agatah.dogtalk.dto.PetProfileDto;
 import com.agatah.dogtalk.model.Pet;
-import com.agatah.dogtalk.model.Photo;
-
-import java.util.stream.Collectors;
 
 public class PetProfileMapper {
 

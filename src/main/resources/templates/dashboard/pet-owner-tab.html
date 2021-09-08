@@ -31,7 +31,7 @@
                 <div class="pet-card" th:each="pet: ${owner.pets}">
                     <div>
                         <img class="dashed" th:if="${pet.photoId == null}" th:src="@{/images/dog-profile.svg}" width="200px">
-                        <img class="solid" th:if="${pet.photoId != null}" th:src="@{'../image/'+ ${pet.photoId}}" width="200px">
+                        <img class="solid" th:if="${pet.photoId != null}" th:src="@{'../api/image/'+ ${pet.photoId}}" width="200px">
                         <button class="btn btn-outline-primary btn-sm container-fluid" th:id="${pet.petId}"
                                 onclick="savePetId(this.id); toggleDisplay('photoForm', 'petsDisplay');">Change photo</button>
                     </div>

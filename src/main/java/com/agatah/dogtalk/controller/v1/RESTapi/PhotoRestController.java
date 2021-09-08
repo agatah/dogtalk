@@ -1,6 +1,7 @@
 package com.agatah.dogtalk.controller.v1.RESTapi;
 
 import com.agatah.dogtalk.service.PhotoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
@@ -10,11 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/image")
+@RequestMapping("/api/image")
 public class PhotoRestController {
 
-    PhotoService photoService;
+    private final PhotoService photoService;
 
+    @Autowired
     public PhotoRestController(PhotoService photoService){
         this.photoService = photoService;
     }

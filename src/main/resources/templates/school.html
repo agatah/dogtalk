@@ -13,7 +13,7 @@
       <h1 class="school-name text-break" th:text="${school.name}"></h1>
     </div>
     <div th:if="${school.getBannerId() != null}" class="d-flex align-items-end justify-content-center shadow banner"
-         th:with="bannerUrl = '/image/' + ${school.getBannerId()}"
+         th:with="bannerUrl = '/api/image/' + ${school.getBannerId()}"
          th:style="'background-image: url(' + ${bannerUrl} +'), linear-gradient(0deg, rgba(255,255,255,0.40) 0%, rgba(0,0,0,0) 70%);'">
       <h1 class="school-name" th:text="${school.name}"></h1>
     </div>

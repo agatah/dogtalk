@@ -31,7 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception{
         http
                 .authorizeRequests()
-                .antMatchers("/behaviorist/**", "/search/**","/search*", "/school/**", "/school*", "/school/*", "/school?city=Wrocław", "redirect:/**").authenticated()
+                .antMatchers("/behaviorist/**", "/search/**", "/school/**", "/api/**").authenticated()
                 .antMatchers("/user/school/**").hasRole("BEHAVIORIST")
                 .antMatchers("/", "/login", "/register", "/resources/**").permitAll()
                 .and()
@@ -48,6 +48,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) throws Exception{
         auth.userDetailsService(userDetailService).passwordEncoder(passwordEncoder());
     }
-
-
 }

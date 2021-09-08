@@ -1,17 +1,14 @@
 package com.agatah.dogtalk.controller.v1.ui;
 
 import com.agatah.dogtalk.dto.PhotoDto;
-import com.agatah.dogtalk.dto.UserDto;
 import com.agatah.dogtalk.dto.UserDetailsDto;
+import com.agatah.dogtalk.dto.UserDto;
 import com.agatah.dogtalk.model.Photo;
-import com.agatah.dogtalk.service.PhotoService;
 import com.agatah.dogtalk.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,11 +23,9 @@ import java.io.IOException;
 public class UserController {
 
     private final UserService userService;
-    private final PhotoService photoService;
 
-    public UserController(UserService userService, PhotoService photoService){
+    public UserController(UserService userService){
         this.userService = userService;
-        this.photoService = photoService;
     }
 
     @GetMapping("/info")

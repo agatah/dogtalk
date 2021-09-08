@@ -1,8 +1,6 @@
 package com.agatah.dogtalk.controller.v1.ui;
 
 import com.agatah.dogtalk.dto.LocationDto;
-import com.agatah.dogtalk.model.Location;
-import com.agatah.dogtalk.service.LocationService;
 import com.agatah.dogtalk.service.SchoolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
