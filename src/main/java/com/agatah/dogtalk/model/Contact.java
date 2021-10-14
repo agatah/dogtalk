@@ -29,6 +29,11 @@ public class Contact {
     @Column(nullable = false)
     private String value;
 
+    public Contact(ContactType contactType, String value){
+        this.contactType = contactType;
+        this.value = value;
+    }
+
 
 
     //EqualsAndHashCode

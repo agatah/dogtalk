@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 @Service
 public class PrivilegeService {
 
-    private BehavioristPrivilegesInSchoolRepository behavioristPrivilegesInSchoolRepository;
+    private final BehavioristPrivilegesInSchoolRepository behavioristPrivilegesInSchoolRepository;
 
     @Autowired
     public PrivilegeService(BehavioristPrivilegesInSchoolRepository behavioristPrivilegesInSchoolRepository){

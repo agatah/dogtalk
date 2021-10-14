@@ -2,6 +2,7 @@ package com.agatah.dogtalk.service;
 
 import com.agatah.dogtalk.dto.OwnerProfileDto;
 import com.agatah.dogtalk.dto.mappers.OwnerProfileMapper;
+import com.agatah.dogtalk.exception.EntityNotFoundException;
 import com.agatah.dogtalk.model.PetOwnerProfile;
 import com.agatah.dogtalk.model.User;
 import com.agatah.dogtalk.repository.OwnerProfileRepository;
@@ -22,10 +23,9 @@ public class OwnerService {
 
     public OwnerProfileDto getOwnerById(Long id){
         Optional<PetOwnerProfile> ownerProfileOpt = ownerProfileRepository.findById(id);
-        if(ownerProfileOpt.isPresent()){
-            return OwnerProfileMapper.toOwnerProfileDto(ownerProfileOpt.get());
-        }
-        return null;
+        return ownerProfileOpt
+                .map(OwnerProfileMapper::toOwnerProfileDto)
+                .orElseThrow(() -> new EntityNotFoundException(PetOwnerProfile.class, id));
     }
 
     public OwnerProfileDto createOwnerProfile(User user) {
@@ -35,8 +35,7 @@ public class OwnerService {
     }
 
     public void deleteById(Long userId){
-        Optional<PetOwnerProfile> petOwnerProfileOpt = ownerProfileRepository.findById(userId);
-        if(petOwnerProfileOpt.isPresent()){
+        if(ownerProfileRepository.existsById(userId)) {
             ownerProfileRepository.deleteById(userId);
         }
     }

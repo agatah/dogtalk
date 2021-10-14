@@ -2,6 +2,7 @@ package com.agatah.dogtalk.dto;
 
 import com.agatah.dogtalk.model.enums.ContactType;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 @Data

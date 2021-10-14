@@ -2,6 +2,7 @@ package com.agatah.dogtalk.service;
 
 import com.agatah.dogtalk.dto.ContactDto;
 import com.agatah.dogtalk.dto.mappers.ContactMapper;
+import com.agatah.dogtalk.exception.EntityNotFoundException;
 import com.agatah.dogtalk.model.Contact;
 import com.agatah.dogtalk.repository.ContactRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,7 @@ import java.util.Optional;
 @Service
 public class ContactService {
 
-    private ContactRepository contactRepository;
+    private final ContactRepository contactRepository;
 
     @Autowired
     public ContactService(ContactRepository contactRepository){
@@ -27,6 +28,6 @@ public class ContactService {
                     .setValue(contactDto.getValue());
             return ContactMapper.toContactDto(contactRepository.save(dbContact));
         }
-        return null;
+        throw new EntityNotFoundException(Contact.class, contactDto.getContactId());
     }
 }

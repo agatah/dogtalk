@@ -2,6 +2,7 @@ package com.agatah.dogtalk.service;
 
 import com.agatah.dogtalk.dto.UserDto;
 import com.agatah.dogtalk.dto.mappers.UserMapper;
+import com.agatah.dogtalk.exception.EntityNotFoundException;
 import com.agatah.dogtalk.model.Photo;
 import com.agatah.dogtalk.model.Role;
 import com.agatah.dogtalk.model.User;
@@ -13,7 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 @Service
@@ -51,14 +51,18 @@ public class UserService {
 
         Optional<Role> roleOpt = roleRepository.findByRoleType(userDto.getRole());
         if(roleOpt.isEmpty()){
-            return null; //THROW ROLE NOT FOUND TODO
+            Role dbRole = roleRepository.save(new Role(userDto.getRole()));
+            user.setRole(dbRole);
+        } else {
+            user.setRole(roleOpt.get());
         }
-        user.setRole(roleOpt.get());
+
         User dbUser = userRepository.save(user);
 
-        if(roleOpt.get().getRoleType().equals(RoleType.ROLE_BEHAVIORIST)){
+        if(userDto.getRole().equals(RoleType.ROLE_BEHAVIORIST)){
             behavioristService.createBehavioristProfile(dbUser);
-        } else if(roleOpt.get().getRoleType().equals(RoleType.ROLE_PET_OWNER)){
+
+        } else if(userDto.getRole().equals(RoleType.ROLE_PET_OWNER)){
             ownerService.createOwnerProfile(dbUser);
         }
 
@@ -69,33 +73,46 @@ public class UserService {
         Optional<User> userOpt = userRepository.findById(id);
         if(userOpt.isPresent()){
             return UserMapper.toUserDto(userOpt.get());
+        } else {
+            throw new EntityNotFoundException(User.class, id);
         }
-        return null;
     }
 
-    public UserDto updateUser(Long id, UserDto user){
-        User dbUser = userRepository.findById(id).get();
+    public UserDto updateUser(Long id, UserDto userDto){
+        Optional<User> userOpt = userRepository.findById(id);
+        if(userOpt.isPresent()){
+            User dbUser = userOpt.get();
+            dbUser.setFirstName(userDto.getFirstName())
+                    .setLastName(userDto.getLastName());
 
-        dbUser.setFirstName(user.getFirstName())
-                .setLastName(user.getLastName());
-
-        userRepository.save(dbUser);
-
-        return UserMapper.toUserDto(userRepository.findById(id).get());
+            return UserMapper.toUserDto(userRepository.save(dbUser));
+        }
+        throw new EntityNotFoundException(User.class, id);
     }
 
-    public void updatePassword(Long userId, UserDto user){
-        User dbUser = userRepository.findById(userId).get();
-        dbUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(dbUser);
+    public void updatePassword(Long userId, UserDto userDto){
+        Optional<User> userOpt = userRepository.findById(userId);
+        if(userOpt.isPresent()){
+            User dbUser = userOpt.get();
+
+            dbUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
+            userRepository.save(dbUser);
+        } else {
+            throw new EntityNotFoundException(User.class, userId);
+        }
+
     }
 
     public UserDto addPhoto(Long userId, Photo photo){
         Optional<User> userOpt = userRepository.findById(userId);
         if(userOpt.isPresent()){
-            return UserMapper.toUserDto(userRepository.save(userOpt.get().setPhoto(photoService.uploadPhoto(photo))));
+            User dbUser = userOpt.get();
+            dbUser.setPhoto(photoService.uploadPhoto(photo));
+
+            return UserMapper.toUserDto(userRepository.save(dbUser));
+        } else {
+            throw new EntityNotFoundException(User.class, userId);
         }
-        return null;
     }
 
     @Transactional

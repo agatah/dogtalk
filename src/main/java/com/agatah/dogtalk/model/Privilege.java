@@ -25,6 +25,10 @@ public class Privilege {
     @Enumerated(EnumType.STRING)
     private PrivilegeType privilegeType;
 
+    public Privilege(PrivilegeType privilegeType){
+        this.privilegeType = privilegeType;
+    }
+
 
 
 //    EqualsAndHashCode

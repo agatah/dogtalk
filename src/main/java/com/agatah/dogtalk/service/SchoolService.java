@@ -1,28 +1,29 @@
 package com.agatah.dogtalk.service;
 
-import com.agatah.dogtalk.dto.*;
+import com.agatah.dogtalk.dto.ContactDto;
+import com.agatah.dogtalk.dto.SchoolFullDto;
+import com.agatah.dogtalk.dto.SchoolShortDto;
+import com.agatah.dogtalk.dto.ServiceDto;
 import com.agatah.dogtalk.dto.mappers.ContactMapper;
 import com.agatah.dogtalk.dto.mappers.SchoolMapper;
+import com.agatah.dogtalk.dto.mappers.ServiceMapper;
+import com.agatah.dogtalk.exception.EntityNotFoundException;
 import com.agatah.dogtalk.model.*;
-
-import com.agatah.dogtalk.repository.ContactRepository;
 import com.agatah.dogtalk.repository.SchoolRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class SchoolService {
 
-    private SchoolRepository schoolRepository;
-    private PhotoService photoService;
+    private final SchoolRepository schoolRepository;
+    private final PhotoService photoService;
 
     @Autowired
     public SchoolService(SchoolRepository schoolRepository, PhotoService photoService){
@@ -32,26 +33,30 @@ public class SchoolService {
 
     public SchoolFullDto getSchoolFullById(Long id){
         Optional<School> schoolOpt = schoolRepository.findById(id);
-        if(schoolOpt.isPresent()){
-            return SchoolMapper.toSchoolFullDto(schoolOpt.get());
-        }
-        return null;
+        return schoolOpt
+                .map(SchoolMapper::toSchoolFullDto)
+                .orElseThrow(() -> new EntityNotFoundException(School.class, id));
+
     }
 
     public Page<SchoolShortDto> getAllSchoolShortsByCity(String city, int page){
-        return schoolRepository.findByLocationsCity(city, PageRequest.of(page, 5)).map(SchoolMapper::toSchoolShortDto);
+        return schoolRepository
+                .findByLocationsCity(city, PageRequest.of(page, 5))
+                .map(SchoolMapper::toSchoolShortDto);
     }
 
     public Page<SchoolShortDto> getAllSchoolShorts(int page){
-        return schoolRepository.findAll(PageRequest.of(page, 5)).map(SchoolMapper::toSchoolShortDto);
+        return schoolRepository
+                .findAll(PageRequest.of(page, 5))
+                .map(SchoolMapper::toSchoolShortDto);
     }
 
     @Transactional
     public void deleteSchoolIfNoneBehavioristHasPrivilegeManage(Long schoolId){
         Optional<School> schoolOpt = schoolRepository.findById(schoolId);
         if(schoolOpt.isPresent()){
-            List<BehavioristPrivilegesInSchool> behavioristPrivilegesInSchools = schoolOpt.get().getBehavioristPrivilegesInSchools();
-            if(behavioristPrivilegesInSchools.stream().noneMatch(BehavioristPrivilegesInSchool::hasPrivilegeManage)){
+            List<BehavioristPrivilegesInSchool> privilegesInSchool = schoolOpt.get().getBehavioristPrivilegesInSchools();
+            if(privilegesInSchool.stream().noneMatch(BehavioristPrivilegesInSchool::hasPrivilegeManage)){
                 schoolRepository.deleteById(schoolId);
             }
         }
@@ -59,68 +64,54 @@ public class SchoolService {
 
     public SchoolFullDto addSchoolContact(Long schoolId, ContactDto contact){
         Optional<School> schoolOpt = schoolRepository.findById(schoolId);
-        if(schoolOpt.isPresent()){
-            School school = schoolOpt.get();
-            school.addContact(new Contact()
-                    .setContactType(contact.getContactType())
-                    .setValue(contact.getValue()));
-            return SchoolMapper.toSchoolFullDto(schoolRepository.save(school));
-        } else {
-            return null;
-        }
+        return schoolOpt
+                .map(school -> school.addContact(new Contact(contact.getContactType(), contact.getValue())))
+                .map(schoolRepository::save)
+                .map(SchoolMapper::toSchoolFullDto)
+                .orElseThrow(() -> new EntityNotFoundException(School.class, schoolId));
+
     }
 
     public void deleteSchoolContact(Long schoolId, ContactDto contactDto){
-        Contact contact = ContactMapper.toContact(contactDto);
         Optional<School> schoolOpt = schoolRepository.findById(schoolId);
-        if(schoolOpt.isPresent()){
-            School school = schoolOpt.get();
-            schoolRepository.save(school.removeContact(contact));
-        }
+        schoolOpt
+                .map(school -> school.removeContact(ContactMapper.toContact(contactDto)))
+                .map(schoolRepository::save)
+                .orElseThrow(() -> new EntityNotFoundException(School.class, schoolId));
     }
 
-    public SchoolFullDto deleteSchoolService(Long schoolId, ServiceDto service){
+    public SchoolFullDto deleteSchoolService(Long schoolId, ServiceDto serviceDto){
         Optional<School> schoolOpt = schoolRepository.findById(schoolId);
-        if(schoolOpt.isPresent()){
-            School dbSchool = schoolOpt.get();
-            dbSchool.removeService(new ServiceOffer()
-                    .setSchool(dbSchool)
-                    .setDescription(service.getDescription())
-                    .setId(service.getServiceId())
-                    .setPrice(service.getPrice())
-                    .setName(service.getServiceName()));
-            return SchoolMapper.toSchoolFullDto(schoolRepository.save(dbSchool));
-        } else {
-            return null;
-        }
+        return schoolOpt
+                .map(school -> school.removeService(ServiceMapper.toServiceOffer(serviceDto, school)))
+                .map(schoolRepository::save)
+                .map(SchoolMapper::toSchoolFullDto)
+                .orElseThrow(() -> new EntityNotFoundException(School.class, schoolId));
     }
 
-    public SchoolFullDto addSchoolService(Long schoolId, ServiceDto service){
+    public SchoolFullDto addSchoolService(Long schoolId, ServiceDto serviceDto){
         Optional<School> schoolOpt = schoolRepository.findById(schoolId);
-        if(schoolOpt.isPresent()){
-            School school = schoolOpt.get();
-            school.addService(new ServiceOffer()
-                    .setName(service.getServiceName())
-                    .setDescription(service.getDescription())
-                    .setPrice(service.getPrice()));
-            return SchoolMapper.toSchoolFullDto(schoolRepository.save(school));
-        } else {
-            return null;
-        }
+        return schoolOpt
+                .map(school -> school.addService(ServiceMapper.toServiceOffer(serviceDto, school)))
+                .map(schoolRepository::save)
+                .map(SchoolMapper::toSchoolFullDto)
+                .orElseThrow(() -> new EntityNotFoundException(School.class, schoolId));
+
     }
 
     public SchoolFullDto addPhoto(Long schoolId, Photo photo){
         Optional<School> schoolOpt = schoolRepository.findById(schoolId);
-        if(schoolOpt.isPresent()){
-            return SchoolMapper.toSchoolFullDto(schoolRepository.save(schoolOpt.get().setBanner(photoService.uploadPhoto(photo))));
-        }
-        return null;
+        return schoolOpt
+                .map(school -> school.setBanner(photoService.uploadPhoto(photo)))
+                .map(schoolRepository::save)
+                .map(SchoolMapper::toSchoolFullDto)
+                .orElseThrow(() -> new EntityNotFoundException(School.class, schoolId));
+
     }
 
     public void deleteSchoolById(Long id){
-        schoolRepository.deleteById(id);
+        if(schoolRepository.existsById(id)){
+            schoolRepository.deleteById(id);
+        }
     }
-
-
-
 }

@@ -27,6 +27,6 @@ public class UserDetailService implements UserDetailsService {
         if(userOpt.isPresent()){
             return UserMapper.toUserDetailsDto(userOpt.get());
         }
-        throw new UsernameNotFoundException("User with email: " + email + "not fount");
+        throw new UsernameNotFoundException("User with email: " + email + "not found");
     }
 }

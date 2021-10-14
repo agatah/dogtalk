@@ -4,6 +4,7 @@ import com.agatah.dogtalk.dto.BehavioristFullProfileDto;
 import com.agatah.dogtalk.dto.ContactDto;
 import com.agatah.dogtalk.dto.UserDetailsDto;
 import com.agatah.dogtalk.service.BehavioristService;
+import com.agatah.dogtalk.service.ContactService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -15,10 +16,12 @@ import org.springframework.web.bind.annotation.*;
 public class BehavioristProfileController {
 
     private final BehavioristService behavioristService;
+    private final ContactService contactService;
 
     @Autowired
-    public BehavioristProfileController(BehavioristService behavioristService){
+    public BehavioristProfileController(BehavioristService behavioristService, ContactService contactService){
         this.behavioristService = behavioristService;
+        this.contactService = contactService;
     }
 
     @GetMapping("/behaviorist/{id}")
@@ -48,7 +51,7 @@ public class BehavioristProfileController {
 
     @PutMapping("/user/behaviorist/contact")
     public String updateBehavioristContact(@ModelAttribute("contact") ContactDto contact){
-        behavioristService.updateBehavioristContact(contact);
+        contactService.updateContact(contact);
         return "redirect:/user/behaviorist";
     }
 
